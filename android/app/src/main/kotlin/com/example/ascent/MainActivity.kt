@@ -1,4 +1,4 @@
-package com.example.ascent
+package be.sourcery.ascent.flutter
 
 import io.flutter.embedding.android.FlutterActivity
 

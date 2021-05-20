@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+
+import 'crag.dart';
+import 'database.dart';
+
+class AddCragScreen extends StatelessWidget {
+  final TextEditingController nameController = new TextEditingController();
+  final TextEditingController countryController = new TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Add Crag"),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    'Crag Name',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+                Flexible(
+                  child: TextFormField(
+                    controller: nameController,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    'Country',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+                Flexible(
+                  child: TextField(controller: countryController),
+                ),
+              ],
+            ),
+            // buttons below
+            SizedBox(
+              height: 50,
+            ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Crag crag = new Crag(name: nameController.text, country: countryController.text);
+                    DatabaseHelper.addCrag(crag);
+                    Navigator.pop(context);
+                  },
+                  child: Text('Add'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
