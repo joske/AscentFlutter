@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'ascent.dart';
 import 'crag.dart';
@@ -18,6 +19,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   final TextEditingController dateController = new TextEditingController();
   final TextEditingController commentController = new TextEditingController();
   DateTime currentDate = DateTime.now();
+  var formatter = new DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +129,9 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     style: Theme.of(context).textTheme.bodyText1,
                   ),
                 ),
-                Flexible(
-                  child: Text(currentDate.toString()),
+                SizedBox(
+                  width: 100,
+                  child: Text(formatter.format(currentDate)),
                 ),
                 ElevatedButton(
                     onPressed: () {

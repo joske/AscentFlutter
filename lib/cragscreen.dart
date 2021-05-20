@@ -11,50 +11,6 @@ class CragScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Crags'),
       ),
-      drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Ascent'),
-            ),
-            ListTile(
-              title: Text('Crags'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CragScreen()),
-                );
-              },
-            ),
-            ListTile(
-              title: Text('Graph'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Pyramid'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Top 10'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-          ],
-        ),
-      ),
       body: FutureBuilder<List<Crag>>(
         future: DatabaseHelper.getCrags(),
         initialData: List.empty(),

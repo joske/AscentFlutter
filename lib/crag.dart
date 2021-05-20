@@ -3,7 +3,7 @@ class Crag {
   final String name;
   final String country;
 
-  Crag({this.name, this.country});
+  Crag({this.id, this.name, this.country});
 
   Crag.fromMap(Map<String, dynamic> res)
       : id = res["_id"],

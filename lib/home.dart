@@ -1,5 +1,7 @@
+import 'package:ascent/import.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
 import 'ascent.dart';
@@ -16,6 +18,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var formatter = new DateFormat('yyyy-MM-dd');
   void addAscent() async {
     Navigator.push(
       context,
@@ -44,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text('Crags'),
               onTap: () {
+                Navigator.of(context).pop();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CragScreen()),
@@ -71,6 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 // ...
               },
             ),
+            ListTile(
+              title: Text('Import'),
+              onTap: () {
+                importData();
+              },
+            ),
           ],
         ),
       ),
@@ -80,12 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Center();
 
-          return new ListView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: snapshot.data?.length,
-            itemBuilder: (context, i) {
-              return _buildRow(snapshot.data[i]);
-            },
+          return Scrollbar(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(10.0),
+              itemCount: snapshot.data?.length,
+              itemBuilder: (context, i) {
+                return _buildRow(snapshot.data[i]);
+              },
+            ),
+            thickness: 20,
           );
         },
       ),
@@ -98,15 +111,40 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildRow(Ascent ascent) {
-    return new ListTile(
-      title: new Text(ascent.route.name),
+    return Card(
+        child: ListTile(
+      title: Text(
+        "${formatter.format(ascent.date)}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.route.grade}",
+        style: Theme.of(context).textTheme.bodyText1,
+      ),
       subtitle: Column(
         children: [
-          Text(ascent.route.name),
-          Text(ascent.route.grade),
-          Text(ascent.comment),
+          Row(
+            children: [
+              Text(
+                "${ascent.route.crag.name}    ${ascent.route.sector}",
+                textAlign: TextAlign.left,
+              ),
+            ],
+          ),
+          Container(
+            child: Text(
+              ascent.comment,
+            ),
+          ),
         ],
       ),
-    );
+    ));
+  }
+
+  void importData() async {
+    var ascents = await CsvImporter().readFile();
+    if (ascents.isNotEmpty) {
+      DatabaseHelper.clear();
+      for (final a in ascents) {
+        await DatabaseHelper.addAscent(a);
+      }
+      setState(() {});
+    }
   }
 }
