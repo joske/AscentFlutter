@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text('Crags'),
               onTap: () async {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // close drawer
                 await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CragScreen()),
@@ -48,32 +48,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {});
               },
             ),
-            ListTile(
-              title: Text('Graph'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Pyramid'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Top 10'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
+            // ListTile(
+            //   title: Text('Graph'),
+            //   onTap: () {
+            //     // Update the state of the app.
+            //     // ...
+            //   },
+            // ),
+            // ListTile(
+            //   title: Text('Pyramid'),
+            //   onTap: () {
+            //     // Update the state of the app.
+            //     // ...
+            //   },
+            // ),
+            // ListTile(
+            //   title: Text('Top 10'),
+            //   onTap: () {
+            //     // Update the state of the app.
+            //     // ...
+            //   },
+            // ),
             ListTile(
               title: Text('Import'),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                importData();
+                await importData();
+                setState(() {});
               },
             ),
           ],
@@ -105,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
           );
           setState(() {});
         },
-        tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
     );
@@ -139,17 +139,37 @@ class _MyHomePageState extends State<MyHomePage> {
     ));
   }
 
+  static showProgressDialog(BuildContext context, String title) {
+    try {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              content: Flex(
+                direction: Axis.horizontal,
+                children: <Widget>[
+                  CircularProgressIndicator(),
+                  Padding(
+                    padding: EdgeInsets.only(left: 15),
+                  ),
+                  Flexible(
+                      flex: 8,
+                      child: Text(
+                        title,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      )),
+                ],
+              ),
+            );
+          });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Future<void> importData() async {
-    var dialog = showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: Row(
-              children: [CircularProgressIndicator(), Text("Importing")],
-            ),
-          );
-        });
-    Navigator.pop(context); //pop dialog
+    showProgressDialog(context, "Importing");
     var ascents = await CsvImporter().readFile();
     if (ascents.isNotEmpty) {
       await DatabaseHelper.clear();
@@ -158,5 +178,6 @@ class _MyHomePageState extends State<MyHomePage> {
         await DatabaseHelper.addAscent(a);
       }
     }
+    Navigator.pop(context);
   }
 }

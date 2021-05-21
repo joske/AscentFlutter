@@ -39,7 +39,6 @@ class _CragScreenState extends State<CragScreen> {
           );
           setState(() {});
         },
-        tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
     );
