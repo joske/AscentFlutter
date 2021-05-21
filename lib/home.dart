@@ -19,13 +19,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var formatter = new DateFormat('yyyy-MM-dd');
-  void addAscent() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddAscentScreen()),
-    );
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: Text('Crags'),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                Navigator.push(
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CragScreen()),
                 );
+                setState(() {});
               },
             ),
             ListTile(
@@ -78,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text('Import'),
               onTap: () {
+                Navigator.of(context).pop();
                 importData();
               },
             ),
@@ -103,7 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addAscent,
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddAscentScreen()),
+          );
+          setState(() {});
+        },
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
@@ -138,14 +139,24 @@ class _MyHomePageState extends State<MyHomePage> {
     ));
   }
 
-  void importData() async {
+  Future<void> importData() async {
+    var dialog = showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Row(
+              children: [CircularProgressIndicator(), Text("Importing")],
+            ),
+          );
+        });
+    Navigator.pop(context); //pop dialog
     var ascents = await CsvImporter().readFile();
     if (ascents.isNotEmpty) {
-      DatabaseHelper.clear();
+      await DatabaseHelper.clear();
+      setState(() {});
       for (final a in ascents) {
         await DatabaseHelper.addAscent(a);
       }
-      setState(() {});
     }
   }
 }

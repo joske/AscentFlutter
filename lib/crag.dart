@@ -1,7 +1,7 @@
 class Crag {
   int id = -1;
-  final String name;
-  final String country;
+  String name;
+  String country;
 
   Crag({this.id, this.name, this.country});
 

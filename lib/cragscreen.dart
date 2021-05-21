@@ -4,7 +4,12 @@ import 'add_crag.dart';
 import 'crag.dart';
 import 'database.dart';
 
-class CragScreen extends StatelessWidget {
+class CragScreen extends StatefulWidget {
+  @override
+  _CragScreenState createState() => _CragScreenState();
+}
+
+class _CragScreenState extends State<CragScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,11 +32,12 @@ class CragScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AddCragScreen()),
           );
+          setState(() {});
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

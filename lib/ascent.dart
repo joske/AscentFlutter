@@ -21,7 +21,7 @@ class Ascent {
             id: res["route_id"],
             name: res["route_name"],
             grade: res["route_grade"],
-            sector: res["sector"],
+            sector: res["sector"] != null ? res["sector"] : "",
             crag: Crag(id: res["crag_id"], name: res["crag_name"], country: res["crag_country"])),
         attempts = res["attempts"],
         date = DateTime.parse(res["date"]),

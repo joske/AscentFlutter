@@ -15,7 +15,7 @@ class Route {
         name = res["name"],
         grade = res["grage"],
         crag = res["crag"],
-        sector = res["sector"],
+        sector = res["sector"] != null ? res["sector"] : "",
         gradeScore = getScore(res["grade"]);
 
   Map<String, dynamic> toMap() {
