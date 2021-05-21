@@ -1,7 +1,9 @@
+import 'package:ascent/widgets.dart';
 import 'package:flutter/material.dart';
 
 import 'crag.dart';
 import 'database.dart';
+import 'widgets.dart';
 
 class AddCragScreen extends StatelessWidget {
   final TextEditingController nameController = new TextEditingController();
@@ -9,11 +11,9 @@ class AddCragScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Add Crag"),
-      ),
-      body: Container(
+    return PlatformScaffold(
+      title: "Add Crag",
+      child: Container(
         padding: EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
@@ -27,7 +27,7 @@ class AddCragScreen extends StatelessWidget {
                   ),
                 ),
                 Flexible(
-                  child: TextFormField(
+                  child: PlatformTextField(
                     controller: nameController,
                   ),
                 ),
@@ -43,7 +43,7 @@ class AddCragScreen extends StatelessWidget {
                   ),
                 ),
                 Flexible(
-                  child: TextField(controller: countryController),
+                  child: PlatformTextField(controller: countryController),
                 ),
               ],
             ),
@@ -53,7 +53,7 @@ class AddCragScreen extends StatelessWidget {
             ),
             Row(
               children: [
-                ElevatedButton(
+                PlatformButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -62,10 +62,10 @@ class AddCragScreen extends StatelessWidget {
                 SizedBox(
                   width: 10,
                 ),
-                ElevatedButton(
-                  onPressed: () {
+                PlatformButton(
+                  onPressed: () async {
                     Crag crag = new Crag(name: nameController.text, country: countryController.text);
-                    DatabaseHelper.addCrag(crag);
+                    await DatabaseHelper.addCrag(crag);
                     Navigator.pop(context);
                   },
                   child: Text('Add'),

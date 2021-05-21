@@ -1,11 +1,15 @@
+import 'dart:io';
+
+import 'package:ascent/cragscreen.dart';
 import 'package:ascent/import.dart';
+import 'package:ascent/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
 import 'ascent.dart';
-import 'cragscreen.dart';
 import 'database.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -18,86 +22,51 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var formatter = new DateFormat('yyyy-MM-dd');
+  int _currentIndex = 0;
+  var _items = [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Ascents'),
+    BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Crags')
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Ascent'),
-            ),
-            ListTile(
-              title: Text('Crags'),
-              onTap: () async {
-                Navigator.of(context).pop();
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CragScreen()),
-                );
-                setState(() {});
-              },
-            ),
-            ListTile(
-              title: Text('Graph'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Pyramid'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Top 10'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: Text('Import'),
-              onTap: () {
-                Navigator.of(context).pop();
-                importData();
-              },
-            ),
-          ],
+    if (Platform.isIOS) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(widget.title),
+          trailing: CupertinoButton(
+            child: Icon(Icons.add),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddAscentScreen()),
+              );
+              setState(() {});
+            },
+          ),
         ),
-      ),
-      body: FutureBuilder<List<Ascent>>(
-        future: DatabaseHelper.getAscents(),
-        initialData: List.empty(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center();
-
-          return Scrollbar(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(10.0),
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, i) {
-                return _buildRow(snapshot.data[i]);
-              },
+        child: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(
+              items: _items,
             ),
-            thickness: 20,
-          );
-        },
+            tabBuilder: (BuildContext context, index) {
+              return handleTab(index);
+            }),
+      );
+    }
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(widget.title),
+      ),
+      body: handleTab(_currentIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) => handleTab(index),
+        currentIndex: _currentIndex,
+        items: _items,
       ),
       floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        tooltip: 'Add',
         onPressed: () async {
           await Navigator.push(
             context,
@@ -105,15 +74,73 @@ class _MyHomePageState extends State<MyHomePage> {
           );
           setState(() {});
         },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildRow(Ascent ascent) {
-    return Card(
-        child: ListTile(
+  handleTab(int index) {
+    _currentIndex = index;
+    switch (index) {
+      case 0:
+        return HomeScreen();
+        break;
+      case 1:
+        return CragScreen();
+        break;
+      default:
+        return HomeScreen();
+    }
+  }
+
+  Future<void> importData() async {
+    var dialog = showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Row(
+              children: [CircularProgressIndicator(), Text("Importing")],
+            ),
+          );
+        });
+    Navigator.pop(context); //pop dialog
+    var ascents = await CsvImporter().readFile();
+    if (ascents.isNotEmpty) {
+      await DatabaseHelper.clear();
+      setState(() {});
+      for (final a in ascents) {
+        await DatabaseHelper.addAscent(a);
+      }
+    }
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  final formatter = new DateFormat('yyyy-MM-dd');
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Ascent>>(
+      future: DatabaseHelper.getAscents(),
+      initialData: List.empty(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Center();
+
+        return Scrollbar(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(10.0),
+            itemCount: snapshot.data?.length,
+            itemBuilder: (context, i) {
+              return _buildAscentRow(context, snapshot.data[i]);
+            },
+          ),
+          thickness: 20,
+        );
+      },
+    );
+  }
+
+  Widget _buildAscentRow(BuildContext context, Ascent ascent) {
+    return PlatformListTile(
       title: Text(
         "${formatter.format(ascent.date)}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.route.grade}",
         style: Theme.of(context).textTheme.bodyText1,
@@ -136,27 +163,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-    ));
-  }
-
-  Future<void> importData() async {
-    var dialog = showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: Row(
-              children: [CircularProgressIndicator(), Text("Importing")],
-            ),
-          );
-        });
-    Navigator.pop(context); //pop dialog
-    var ascents = await CsvImporter().readFile();
-    if (ascents.isNotEmpty) {
-      await DatabaseHelper.clear();
-      setState(() {});
-      for (final a in ascents) {
-        await DatabaseHelper.addAscent(a);
-      }
-    }
+    );
   }
 }

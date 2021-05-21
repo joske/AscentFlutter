@@ -1,3 +1,4 @@
+import 'package:ascent/widgets.dart';
 import 'package:flutter/material.dart';
 
 import 'add_crag.dart';
@@ -12,41 +13,42 @@ class CragScreen extends StatefulWidget {
 class _CragScreenState extends State<CragScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Crags'),
-      ),
-      body: FutureBuilder<List<Crag>>(
-        future: DatabaseHelper.getCrags(),
-        initialData: List.empty(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center();
+    return PlatformScaffold(
+      title: 'Crags',
+      child: crags(),
+      fabOnPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddCragScreen()),
+        );
+        setState(() {});
+      },
+      fabTooltip: 'Increment',
+      fabChild: Icon(Icons.add),
+    );
+  }
 
-          return new ListView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: snapshot.data?.length,
-            itemBuilder: (context, i) {
-              return _buildRow(snapshot.data[i]);
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddCragScreen()),
-          );
-          setState(() {});
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+  FutureBuilder<List<Crag>> crags() {
+    return FutureBuilder<List<Crag>>(
+      future: DatabaseHelper.getCrags(),
+      initialData: List.empty(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Center();
+
+        return new ListView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(10.0),
+          itemCount: snapshot.data?.length,
+          itemBuilder: (context, i) {
+            return _buildRow(snapshot.data[i]);
+          },
+        );
+      },
     );
   }
 
   Widget _buildRow(Crag crag) {
-    return new ListTile(
+    return new PlatformListTile(
       title: new Text(crag.name),
     );
   }
