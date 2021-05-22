@@ -1,5 +1,6 @@
+import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/widgets.dart';
 import 'add_crag.dart';
 import 'crag.dart';
 import 'database.dart';
@@ -22,12 +23,10 @@ class _CragScreenState extends State<CragScreen> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Center();
 
-          return new ListView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: snapshot.data?.length,
-            itemBuilder: (context, i) {
-              return _buildRow(snapshot.data[i]);
-            },
+          return Scrollbar(
+            child: buildMainContent(context, snapshot, _buildRow),
+            thickness: 30,
+            interactive: true,
           );
         },
       ),
@@ -45,8 +44,12 @@ class _CragScreenState extends State<CragScreen> {
   }
 
   Widget _buildRow(Crag crag) {
-    return new ListTile(
-      title: new Text(crag.name),
-    );
+    return Card(
+        child: ListTile(
+      title: new Text(
+        crag.name,
+        style: Theme.of(context).textTheme.bodyText1,
+      ),
+    ));
   }
 }

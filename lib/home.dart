@@ -1,4 +1,5 @@
 import 'package:ascent/import.dart';
+import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (!snapshot.hasData) return Center();
 
           return Scrollbar(
-            child: buildMainContent(context, snapshot),
+            child: buildMainContent(context, snapshot, _buildRow),
             thickness: 30,
             interactive: true,
           );
@@ -53,18 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ),
     );
-  }
-
-  Widget buildMainContent(BuildContext context, AsyncSnapshot<List<Ascent>> snapshot) {
-    return Container(
-        child: ListView.builder(
-      shrinkWrap: true,
-      padding: const EdgeInsets.all(10.0),
-      itemCount: snapshot.data?.length,
-      itemBuilder: (context, i) {
-        return _buildRow(snapshot.data[i]);
-      },
-    ));
   }
 
   Widget buildDrawer(BuildContext context) {
