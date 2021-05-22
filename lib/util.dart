@@ -68,3 +68,23 @@ showProgressDialog(BuildContext context, String title) {
     print(e.toString());
   }
 }
+
+showAlertDialog(BuildContext context, String title, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

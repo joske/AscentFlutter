@@ -149,11 +149,13 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         await DatabaseHelper.clear();
         setState(() {});
-        // for (final a in ascents) {
-        //   await DatabaseHelper.addAscent(a);
-        // }
+        for (final a in ascents) {
+          await DatabaseHelper.addAscent(a);
+        }
       } catch (e) {
         print("failed to import $e");
+        Navigator.pop(context);
+        showAlertDialog(context, "Error", "Failed to Import data");
       }
     }
     Navigator.pop(context);
