@@ -27,58 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Ascent'),
-            ),
-            ListTile(
-              title: Text('Crags'),
-              onTap: () async {
-                Navigator.of(context).pop(); // close drawer
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CragScreen()),
-                );
-                setState(() {});
-              },
-            ),
-            // ListTile(
-            //   title: Text('Graph'),
-            //   onTap: () {
-            //     // Update the state of the app.
-            //     // ...
-            //   },
-            // ),
-            // ListTile(
-            //   title: Text('Pyramid'),
-            //   onTap: () {
-            //     // Update the state of the app.
-            //     // ...
-            //   },
-            // ),
-            // ListTile(
-            //   title: Text('Top 10'),
-            //   onTap: () {
-            //     // Update the state of the app.
-            //     // ...
-            //   },
-            // ),
-            ListTile(
-              title: Text('Import'),
-              onTap: () async {
-                Navigator.of(context).pop();
-                await importData();
-                setState(() {});
-              },
-            ),
-          ],
-        ),
+        child: buildDrawer(context),
       ),
       body: FutureBuilder<List<Ascent>>(
         future: DatabaseHelper.getAscents(),
@@ -87,14 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
           if (!snapshot.hasData) return Center();
 
           return Scrollbar(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(10.0),
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, i) {
-                return _buildRow(snapshot.data[i]);
-              },
-            ),
-            thickness: 20,
+            child: buildMainContent(context, snapshot),
+            thickness: 30,
+            interactive: true,
           );
         },
       ),
@@ -108,6 +52,73 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget buildMainContent(BuildContext context, AsyncSnapshot<List<Ascent>> snapshot) {
+    return Container(
+        child: ListView.builder(
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(10.0),
+      itemCount: snapshot.data?.length,
+      itemBuilder: (context, i) {
+        return _buildRow(snapshot.data[i]);
+      },
+    ));
+  }
+
+  Widget buildDrawer(BuildContext context) {
+    return ListView(
+      // Important: Remove any padding from the ListView.
+      padding: EdgeInsets.zero,
+      children: <Widget>[
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.blue,
+          ),
+          child: Text('Ascent'),
+        ),
+        ListTile(
+          title: Text('Crags'),
+          onTap: () async {
+            Navigator.of(context).pop(); // close drawer
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CragScreen()),
+            );
+            setState(() {});
+          },
+        ),
+        // ListTile(
+        //   title: Text('Graph'),
+        //   onTap: () {
+        //     // Update the state of the app.
+        //     // ...
+        //   },
+        // ),
+        // ListTile(
+        //   title: Text('Pyramid'),
+        //   onTap: () {
+        //     // Update the state of the app.
+        //     // ...
+        //   },
+        // ),
+        // ListTile(
+        //   title: Text('Top 10'),
+        //   onTap: () {
+        //     // Update the state of the app.
+        //     // ...
+        //   },
+        // ),
+        ListTile(
+          title: Text('Import'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await importData();
+            setState(() {});
+          },
+        ),
+      ],
     );
   }
 
