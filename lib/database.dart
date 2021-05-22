@@ -124,6 +124,17 @@ class DatabaseHelper {
     return queryResult.map((e) => Ascent.fromMap(e)).toList();
   }
 
+  static Future<void> updateAscent(Ascent ascent) async {
+    await init();
+    await _db.update("routes", ascent.route.toMap(), where: '_id = ?', whereArgs: [ascent.route.id]);
+    await _db.update("ascents", ascent.toMap(), where: '_id = ?', whereArgs: [ascent.id]);
+  }
+
+  static Future<void> deleteAscent(Ascent ascent) async {
+    await init();
+    await _db.rawDelete("delete from ascents where _id = ?", [ascent.id]);
+  }
+
   static Future<void> clear() async {
     await init();
     await _db.rawDelete("delete from crag");

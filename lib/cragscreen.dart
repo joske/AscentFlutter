@@ -17,19 +17,7 @@ class _CragScreenState extends State<CragScreen> {
       appBar: AppBar(
         title: Text('Crags'),
       ),
-      body: FutureBuilder<List<Crag>>(
-        future: DatabaseHelper.getCrags(),
-        initialData: List.empty(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center();
-
-          return Scrollbar(
-            child: buildMainContent(context, snapshot, _buildRow),
-            thickness: 30,
-            interactive: true,
-          );
-        },
-      ),
+      body: createScrollView(context, DatabaseHelper.getCrags(), _buildRow),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(

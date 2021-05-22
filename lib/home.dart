@@ -30,19 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: buildDrawer(context),
       ),
-      body: FutureBuilder<List<Ascent>>(
-        future: DatabaseHelper.getAscents(),
-        initialData: List.empty(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center();
-
-          return Scrollbar(
-            child: buildMainContent(context, snapshot, _buildRow),
-            thickness: 30,
-            interactive: true,
-          );
-        },
-      ),
+      body: createScrollView(context, DatabaseHelper.getAscents(), _buildRow),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
@@ -113,69 +101,59 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildRow(Ascent ascent) {
     return Card(
-        child: ListTile(
-      title: Text(
-        "${formatter.format(ascent.date)}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.route.grade}",
-        style: Theme.of(context).textTheme.bodyText1,
-      ),
-      subtitle: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                "${ascent.route.crag.name}    ${ascent.route.sector}",
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-          Container(
-            child: Text(
-              ascent.comment,
+      child: ListTile(
+        title: Text(
+          "${formatter.format(ascent.date)}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.route.grade}",
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        subtitle: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  "${ascent.route.crag.name}    ${ascent.route.sector}",
+                  textAlign: TextAlign.left,
+                ),
+              ],
             ),
-            alignment: Alignment.topLeft,
-          ),
-        ],
+            Container(
+              child: Text(
+                ascent.comment,
+              ),
+              alignment: Alignment.topLeft,
+            ),
+          ],
+        ),
+        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
       ),
-    ));
+    );
   }
 
-  static showProgressDialog(BuildContext context, String title) {
-    try {
-      showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return AlertDialog(
-              content: Flex(
-                direction: Axis.horizontal,
-                children: <Widget>[
-                  CircularProgressIndicator(),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15),
-                  ),
-                  Flexible(
-                      flex: 8,
-                      child: Text(
-                        title,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      )),
-                ],
-              ),
-            );
-          });
-    } catch (e) {
-      print(e.toString());
-    }
+  void editAscent(Ascent ascent) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddAscentScreen(passedAscent: ascent)),
+    );
+    setState(() {});
+  }
+
+  void deleteAscent(Ascent ascent) {
+    DatabaseHelper.deleteAscent(ascent);
+    setState(() {});
   }
 
   Future<void> importData() async {
     showProgressDialog(context, "Importing");
     var ascents = await CsvImporter().readFile();
     if (ascents.isNotEmpty) {
-      await DatabaseHelper.clear();
-      setState(() {});
-      for (final a in ascents) {
-        await DatabaseHelper.addAscent(a);
+      try {
+        await DatabaseHelper.clear();
+        setState(() {});
+        // for (final a in ascents) {
+        //   await DatabaseHelper.addAscent(a);
+        // }
+      } catch (e) {
+        print("failed to import $e");
       }
     }
     Navigator.pop(context);

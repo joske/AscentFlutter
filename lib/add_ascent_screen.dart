@@ -8,14 +8,19 @@ import 'route.dart' as mine;
 import 'style.dart';
 
 class AddAscentScreen extends StatefulWidget {
+  final Ascent passedAscent;
+
+  AddAscentScreen({Key key, this.passedAscent});
+
   @override
-  _AddAscentScreenState createState() => _AddAscentScreenState();
+  _AddAscentScreenState createState() => _AddAscentScreenState(passedAscent: passedAscent);
 }
 
 class _AddAscentScreenState extends State<AddAscentScreen> {
+  final Ascent passedAscent;
+
   final TextEditingController nameController = new TextEditingController();
   final TextEditingController sectorController = new TextEditingController();
-  final TextEditingController dateController = new TextEditingController();
   final TextEditingController commentController = new TextEditingController();
   DateTime currentDate = DateTime.now();
   var formatter = new DateFormat('yyyy-MM-dd');
@@ -23,11 +28,23 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   var grade = "6a";
   var cragId;
 
+  _AddAscentScreenState({this.passedAscent}) {
+    if (passedAscent != null) {
+      styleId = passedAscent.style.id;
+      grade = passedAscent.route.grade;
+      cragId = passedAscent.route.crag.id;
+      nameController.text = passedAscent.route.name;
+      sectorController.text = passedAscent.route.sector;
+      currentDate = passedAscent.date;
+      commentController.text = passedAscent.comment;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Ascent"),
+        title: passedAscent != null ? Text("Edit Ascent") : Text("Add Ascent"),
       ),
       body: Container(
         padding: EdgeInsets.all(20.0),
@@ -58,20 +75,24 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     style: Theme.of(context).textTheme.bodyText1,
                   ),
                 ),
-                FutureBuilder<List>(
-                  future: DatabaseHelper.getCrags(),
-                  initialData: List.empty(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Center();
-                    return new DropdownButton(
-                        value: cragId,
-                        items: buildCragList(snapshot),
-                        onChanged: (value) {
-                          setState(() {
-                            cragId = value;
+                SizedBox(
+                  width: 200,
+                  height: 50,
+                  child: FutureBuilder<List>(
+                    future: DatabaseHelper.getCrags(),
+                    initialData: List.empty(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return Center();
+                      return new DropdownButton(
+                          value: cragId,
+                          items: buildCragList(snapshot),
+                          onChanged: (value) {
+                            setState(() {
+                              cragId = value;
+                            });
                           });
-                        });
-                  },
+                    },
+                  ),
                 ),
               ],
             ),
@@ -189,7 +210,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 10,
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Crag crag = new Crag(id: cragId);
                     mine.Route route = new mine.Route(
                       name: nameController.text,
@@ -199,10 +220,17 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     );
                     Ascent ascent = new Ascent(
                         route: route, comment: commentController.text, date: currentDate, attempts: 1, stars: 3, style: Style(id: styleId));
-                    DatabaseHelper.addAscent(ascent);
+                    if (passedAscent != null) {
+                      ascent.id = passedAscent.id;
+                      ascent.route.id = passedAscent.route.id;
+                      ascent.route.crag.id = passedAscent.route.crag.id;
+                      await DatabaseHelper.updateAscent(ascent);
+                    } else {
+                      await DatabaseHelper.addAscent(ascent);
+                    }
                     Navigator.pop(context);
                   },
-                  child: Text('Add'),
+                  child: passedAscent != null ? Text("Update") : Text('Add'),
                 ),
               ],
             ),
