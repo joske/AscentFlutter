@@ -223,7 +223,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     if (passedAscent != null) {
                       ascent.id = passedAscent.id;
                       ascent.route.id = passedAscent.route.id;
-                      ascent.route.crag.id = passedAscent.route.crag.id;
+                      ascent.route.crag.id = cragId;
                       await DatabaseHelper.updateAscent(ascent);
                     } else {
                       await DatabaseHelper.addAscent(ascent);
