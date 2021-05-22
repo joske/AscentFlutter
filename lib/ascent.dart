@@ -32,7 +32,7 @@ class Ascent {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    if (id != null) {
+    if (id != null && id > 0) {
       map["_id"] = id;
     }
     map["date"] = date.toIso8601String();
