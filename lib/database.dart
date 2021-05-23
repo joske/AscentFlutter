@@ -60,6 +60,9 @@ class DatabaseHelper {
   static Future<int> addAscent(Ascent ascent) async {
     int id = -1;
     await init();
+    int gradeScore = await getGradeScore(ascent.route.grade);
+    int styleScore = await getStyleScore(ascent.style.id);
+    ascent.score = gradeScore + styleScore;
     var routeId = ascent.route.id;
     if (routeId == null) {
       await _addRoute(ascent);
@@ -123,15 +126,18 @@ class DatabaseHelper {
     List<Map<String, Object>> queryResult;
     if (query != null) {
       query += '%';
-      queryResult = await _db.query('ascent_routes', where: "route_name like ?", whereArgs: [query]);
+      queryResult = await _db.query('ascent_routes', where: "route_name like ?", whereArgs: [query], orderBy: "date desc");
     } else {
-      queryResult = await _db.query('ascent_routes');
+      queryResult = await _db.query('ascent_routes', orderBy: "date desc");
     }
     return queryResult.map((e) => Ascent.fromMap(e)).toList();
   }
 
   static Future<void> updateAscent(Ascent ascent) async {
     await init();
+    int gradeScore = await getGradeScore(ascent.route.grade);
+    int styleScore = await getStyleScore(ascent.style.id);
+    ascent.score = gradeScore + styleScore;
     await _db.update("routes", ascent.route.toMap(), where: '_id = ?', whereArgs: [ascent.route.id]);
     await _db.update("ascents", ascent.toMap(), where: '_id = ?', whereArgs: [ascent.id]);
   }
@@ -139,6 +145,34 @@ class DatabaseHelper {
   static Future<void> deleteAscent(Ascent ascent) async {
     await init();
     await _db.rawDelete("delete from ascents where _id = ?", [ascent.id]);
+  }
+
+  static Future<int> getGradeScore(String grade) async {
+    await init();
+    return Sqflite.firstIntValue(await _db.query("grades", columns: ["score"], where: "grade = ?", whereArgs: [grade]));
+  }
+
+  static Future<int> getScore() async {
+    await init();
+    var result = await _db.query("ascent_routes",
+        columns: ["sum(score)"],
+        where: "style_id <> 7 and julianday(date('now'))- julianday(date) < 365",
+        orderBy: "score desc, date desc",
+        limit: 10);
+    return Sqflite.firstIntValue(result);
+  }
+
+  static Future<int> getStyleScore(int style) async {
+    await init();
+    return Sqflite.firstIntValue(await _db.query("styles", columns: ["score"], where: "_id = ?", whereArgs: [style]));
+  }
+
+  static int calculateScore(int attempts, int style, int gradeScore, int styleScore) {
+    int totalScore = gradeScore + styleScore;
+    if (style == 2 && attempts == 2) {
+      totalScore += 2;
+    }
+    return totalScore;
   }
 
   static Future<void> clear() async {

@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: buildDrawer(context),
       ),
-      body: createScrollView(context, DatabaseHelper.getAscents(query), _buildRow),
+      body: buildBody(context),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
@@ -69,6 +69,33 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
+    Future<List<Ascent>> ascents = DatabaseHelper.getAscents(query);
+    return Column(
+      children: [
+        Container(
+          color: Colors.blueAccent[200],
+          child: FutureBuilder(
+              future: ascents,
+              builder: (context, snapshot) {
+                var len = snapshot.data.length;
+                return ListTile(
+                    leading: Text("ascents: $len"),
+                    trailing: FutureBuilder(
+                        future: DatabaseHelper.getScore(),
+                        builder: (context, snapshot) {
+                          var score = snapshot.data;
+                          return Text("score: $score");
+                        }));
+              }),
+        ),
+        Flexible(
+          child: createScrollView(context, ascents, _buildRow),
+        )
+      ],
     );
   }
 
@@ -131,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Card(
       child: ListTile(
         title: Text(
-          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}",
+          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
           style: Theme.of(context).textTheme.bodyText1,
         ),
         subtitle: Column(

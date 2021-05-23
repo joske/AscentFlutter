@@ -7,7 +7,7 @@ class Ascent {
   final Route route;
   final int attempts;
   final DateTime date;
-  final int score;
+  int score;
   final int stars;
   final Style style;
   final String comment;
