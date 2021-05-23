@@ -77,18 +77,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       children: [
         Container(
-          color: Colors.blueAccent[200],
+          color: Colors.grey[200],
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
                 var len = snapshot.data.length;
                 return ListTile(
-                    leading: Text("ascents: $len"),
+                    leading: Text("Ascents: $len"),
                     trailing: FutureBuilder(
                         future: DatabaseHelper.getScore(),
                         builder: (context, snapshot) {
-                          var score = snapshot.data != null ? snapshot.data : 0;
-                          return Text("score: $score");
+                          var score = snapshot.data != null ? snapshot.data : "0";
+                          return Text("Score: $score");
                         }));
               }),
         ),

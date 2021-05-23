@@ -152,14 +152,23 @@ class DatabaseHelper {
     return Sqflite.firstIntValue(await _db.query("grades", columns: ["score"], where: "grade = ?", whereArgs: [grade]));
   }
 
-  static Future<int> getScore() async {
+  static Future<String> getScore() async {
     await init();
     var result = await _db.query("ascent_routes",
         columns: ["sum(score)"],
         where: "style_id <> 7 and julianday(date('now'))- julianday(date) < 365",
         orderBy: "score desc, date desc",
         limit: 10);
-    return Sqflite.firstIntValue(result);
+    var score12m = Sqflite.firstIntValue(result);
+    if (score12m == null) {
+      score12m = 0;
+    }
+    result = await _db.query("ascent_routes", columns: ["score"], where: "style_id <> 7", orderBy: "score desc, date desc", limit: 10);
+    var allTime = 0;
+    if (result != null) {
+      allTime = result.map((e) => e["score"]).fold(0, (p, n) => p + n);
+    }
+    return "$score12m - All Time: $allTime";
   }
 
   static Future<int> getStyleScore(int style) async {
