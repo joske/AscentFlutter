@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Card(
       child: ListTile(
         title: Text(
-          "${formatter.format(ascent.date)}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.route.grade}",
+          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}",
           style: Theme.of(context).textTheme.bodyText1,
         ),
         subtitle: Column(
@@ -144,19 +144,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> importData() async {
     showProgressDialog(context, "Importing");
-    var ascents = await CsvImporter().readFile();
-    if (ascents.isNotEmpty) {
-      try {
+    try {
+      var ascents = await CsvImporter().readFile();
+      if (ascents.isNotEmpty) {
         await DatabaseHelper.clear();
         setState(() {});
         for (final a in ascents) {
           await DatabaseHelper.addAscent(a);
         }
-      } catch (e) {
-        print("failed to import $e");
-        Navigator.pop(context);
-        showAlertDialog(context, "Error", "Failed to Import data");
       }
+    } catch (e) {
+      print("failed to import $e");
+      Navigator.pop(context);
+      showAlertDialog(context, "Error", "Failed to Import data");
     }
     Navigator.pop(context);
   }

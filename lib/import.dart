@@ -1,30 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
-
+import 'package:file_picker/file_picker.dart';
 import 'ascent.dart';
 import 'crag.dart';
 import 'route.dart';
 import 'style.dart';
 
 class CsvImporter {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/ascent.csv');
-  }
-
   Future<List<Ascent>> readFile() async {
-    final file = await _localFile;
-    // Read the file
-    final contents = await file.readAsString();
-    return parse(contents);
+    FilePickerResult result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path);
+      final contents = await file.readAsString();
+      return parse(contents);
+    } else {
+      return null;
+    }
   }
 
   List<Ascent> parse(String contents) {
