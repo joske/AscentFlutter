@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     trailing: FutureBuilder(
                         future: DatabaseHelper.getScore(),
                         builder: (context, snapshot) {
-                          var score = snapshot.data;
+                          var score = snapshot.data != null ? snapshot.data : 0;
                           return Text("score: $score");
                         }));
               }),
