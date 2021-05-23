@@ -2,6 +2,7 @@ import 'package:ascent/import.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
@@ -15,22 +16,49 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomePageState createState() => new _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var formatter = new DateFormat('yyyy-MM-dd');
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  SearchBar searchBar;
+  DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  String query;
+
+  _MyHomePageState() {
+    searchBar = new SearchBar(
+        inBar: false,
+        setState: setState,
+        clearOnSubmit: false,
+        onSubmitted: onSubmitted,
+        onCleared: () {
+          query = null;
+          setState(() => {});
+        },
+        onClosed: () {
+          query = null;
+          setState(() => {});
+        },
+        buildDefaultAppBar: buildAppBar);
+  }
+
+  Widget buildAppBar(BuildContext context) {
+    return AppBar(title: Text(widget.title), actions: [searchBar.getSearchAction(context)]);
+  }
+
+  void onSubmitted(String value) {
+    setState(() => query = value);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      key: _scaffoldKey,
+      appBar: searchBar.build(context),
       drawer: Drawer(
         child: buildDrawer(context),
       ),
-      body: createScrollView(context, DatabaseHelper.getAscents(), _buildRow),
+      body: createScrollView(context, DatabaseHelper.getAscents(query), _buildRow),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(

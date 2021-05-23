@@ -118,9 +118,15 @@ class DatabaseHelper {
     return queryResult.map((e) => Style.fromMap(e)).toList();
   }
 
-  static Future<List<Ascent>> getAscents() async {
+  static Future<List<Ascent>> getAscents(String query) async {
     await init();
-    final List<Map<String, Object>> queryResult = await _db.query('ascent_routes');
+    List<Map<String, Object>> queryResult;
+    if (query != null) {
+      query += '%';
+      queryResult = await _db.query('ascent_routes', where: "route_name like ?", whereArgs: [query]);
+    } else {
+      queryResult = await _db.query('ascent_routes');
+    }
     return queryResult.map((e) => Ascent.fromMap(e)).toList();
   }
 
