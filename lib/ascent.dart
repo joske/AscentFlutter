@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import 'crag.dart';
 import 'route.dart';
 import 'style.dart';
@@ -11,6 +13,8 @@ class Ascent {
   final int stars;
   final Style style;
   final String comment;
+
+  DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
   Ascent({this.route, this.attempts, this.date, this.score, this.stars, this.comment, this.style});
 
@@ -45,5 +49,50 @@ class Ascent {
       map["route_id"] = route.id;
     }
     return map;
+  }
+
+  static fromString(String input) {
+    var strings = input.split("\t");
+    if (strings.length == 10) {
+      String routeName = strings[0];
+      String routeGrade = strings[1];
+      String cragName = strings[2];
+      String sector = strings[3];
+      String cragCountry = strings[4];
+      int style = int.parse(strings[5]);
+      int attempts = int.parse(strings[6]);
+      DateTime date = DateTime.parse(strings[7]);
+      String comments = strings[8];
+      int stars = int.parse(strings[9]);
+
+      Crag crag = new Crag(name: cragName, country: cragCountry);
+      Route route = new Route(name: routeName, grade: routeGrade, crag: crag, sector: sector);
+      return new Ascent(route: route, style: Style(id: style), attempts: attempts, date: date, comment: comments, stars: stars);
+    }
+  }
+
+  String encode() {
+    StringBuffer line = new StringBuffer();
+    line.write(route.name);
+    line.write("\t");
+    line.write(route.grade);
+    line.write("\t");
+    line.write(route.crag.name);
+    line.write("\t");
+    line.write(route.sector);
+    line.write("\t");
+    line.write(route.crag.country);
+    line.write("\t");
+    line.write(style.id);
+    line.write("\t");
+    line.write(attempts);
+    line.write("\t");
+    line.write(formatter.format(date));
+    line.write("\t");
+    line.write(comment);
+    line.write("\t");
+    line.write(stars);
+    line.write("\r\n");
+    return line.toString();
   }
 }

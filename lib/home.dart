@@ -150,6 +150,13 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {});
           },
         ),
+        ListTile(
+          title: Text('Export'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await exportData();
+          },
+        ),
       ],
     );
   }
@@ -208,6 +215,19 @@ class _MyHomePageState extends State<MyHomePage> {
           await DatabaseHelper.addAscent(a);
         }
       }
+    } catch (e) {
+      print("failed to import $e");
+      Navigator.pop(context);
+      showAlertDialog(context, "Error", "Failed to Import data");
+    }
+    Navigator.pop(context);
+  }
+
+  Future<void> exportData() async {
+    showProgressDialog(context, "Importing");
+    try {
+      var ascents = await DatabaseHelper.getAscents(null);
+      CsvImporter().writeFile(ascents);
     } catch (e) {
       print("failed to import $e");
       Navigator.pop(context);
