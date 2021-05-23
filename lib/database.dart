@@ -166,9 +166,24 @@ class DatabaseHelper {
     result = await _db.query("ascent_routes", columns: ["score"], where: "style_id <> 7", orderBy: "score desc, date desc", limit: 10);
     var allTime = 0;
     if (result != null) {
+      // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
+      // strangely the above code for last 12 months DOES correctly limit to first 10 ascents :-/
+      // implement it here as a map() + fold()
       allTime = result.map((e) => e["score"]).fold(0, (p, n) => p + n);
     }
-    return "$score12m - All Time: $allTime";
+    result = await _db.query("ascent_routes",
+        columns: ["score"],
+        where: "strftime('%Y', date) = strftime('%Y', date('now')) and style_id <> 7",
+        orderBy: "score desc, date desc",
+        limit: 10);
+    var year = 0;
+    if (result != null) {
+      // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
+      // strangely the above code for last 12 months DOES correctly limit to first 10 ascents :-/
+      // implement it here as a map() + fold()
+      year = result.map((e) => e["score"]).fold(0, (p, n) => p + n);
+    }
+    return "$score12m - All Time: $allTime - Year: $year";
   }
 
   static Future<int> getStyleScore(int style) async {
