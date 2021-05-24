@@ -156,14 +156,15 @@ class DatabaseHelper {
     await init();
     var result = await _db.query("ascent_routes",
         columns: ["sum(score)"],
-        where: "style_id <> 7 and julianday(date('now'))- julianday(date) < 365",
+        where: "style_id <> 7 and style_id <> 5 and julianday(date('now'))- julianday(date) < 365",
         orderBy: "score desc, date desc",
         limit: 10);
     var score12m = Sqflite.firstIntValue(result);
     if (score12m == null) {
       score12m = 0;
     }
-    result = await _db.query("ascent_routes", columns: ["score"], where: "style_id <> 7", orderBy: "score desc, date desc", limit: 10);
+    result =
+        await _db.query("ascent_routes", columns: ["score"], where: "style_id <> 7 and style_id <> 5", orderBy: "score desc, date desc", limit: 10);
     var allTime = 0;
     if (result != null) {
       // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
@@ -173,7 +174,7 @@ class DatabaseHelper {
     }
     result = await _db.query("ascent_routes",
         columns: ["score"],
-        where: "strftime('%Y', date) = strftime('%Y', date('now')) and style_id <> 7",
+        where: "strftime('%Y', date) = strftime('%Y', date('now')) and style_id <> 7 and style_id <> 5",
         orderBy: "score desc, date desc",
         limit: 10);
     var year = 0;

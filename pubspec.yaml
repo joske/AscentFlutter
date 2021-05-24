@@ -18,6 +18,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   file_picker: ^3.0.1
   flutter_search_bar: ^2.1.0
+  smooth_star_rating: ^1.1.1
 
 dev_dependencies:
   flutter_test:

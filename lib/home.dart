@@ -83,13 +83,18 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (context, snapshot) {
                 var len = snapshot.data.length;
                 return ListTile(
-                    leading: Text("Ascents: $len"),
-                    trailing: FutureBuilder(
-                        future: DatabaseHelper.getScore(),
-                        builder: (context, snapshot) {
-                          var score = snapshot.data != null ? snapshot.data : "0";
-                          return Text("Score: $score");
-                        }));
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Text("Ascents: $len")],
+                    ),
+                    trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      FutureBuilder(
+                          future: DatabaseHelper.getScore(),
+                          builder: (context, snapshot) {
+                            var score = snapshot.data != null ? snapshot.data : "0";
+                            return Text("Score: $score");
+                          })
+                    ]));
               }),
         ),
         Flexible(

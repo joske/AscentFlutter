@@ -6,13 +6,13 @@ import 'style.dart';
 
 class Ascent {
   int id = -1;
-  final Route route;
-  final int attempts;
-  final DateTime date;
+  Route route;
+  int attempts;
+  DateTime date;
   int score;
-  final int stars;
-  final Style style;
-  final String comment;
+  int stars;
+  Style style;
+  String comment;
 
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
@@ -51,7 +51,7 @@ class Ascent {
     return map;
   }
 
-  static fromString(String input) {
+  Ascent.fromString(String input) {
     var strings = input.split("\t");
     if (strings.length == 10) {
       String routeName = strings[0];
@@ -59,15 +59,14 @@ class Ascent {
       String cragName = strings[2];
       String sector = strings[3];
       String cragCountry = strings[4];
-      int style = int.parse(strings[5]);
-      int attempts = int.parse(strings[6]);
-      DateTime date = DateTime.parse(strings[7]);
-      String comments = strings[8];
-      int stars = int.parse(strings[9]);
+      style = Style(id: int.parse(strings[5]));
+      attempts = int.parse(strings[6]);
+      date = DateTime.parse(strings[7]);
+      comment = strings[8];
+      stars = int.parse(strings[9]);
 
       Crag crag = new Crag(name: cragName, country: cragCountry);
-      Route route = new Route(name: routeName, grade: routeGrade, crag: crag, sector: sector);
-      return new Ascent(route: route, style: Style(id: style), attempts: attempts, date: date, comment: comments, stars: stars);
+      this.route = new Route(name: routeName, grade: routeGrade, crag: crag, sector: sector);
     }
   }
 

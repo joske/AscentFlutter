@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 import 'ascent.dart';
 import 'crag.dart';
@@ -27,6 +28,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   var styleId = 1;
   var grade = "6a";
   var cragId;
+  var stars = 0.0;
 
   _AddAscentScreenState({this.passedAscent}) {
     if (passedAscent != null) {
@@ -37,6 +39,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
       sectorController.text = passedAscent.route.sector;
       currentDate = passedAscent.date;
       commentController.text = passedAscent.comment;
+      stars = passedAscent != null && passedAscent.stars != null ? passedAscent.stars.toDouble() : 0.0;
     }
   }
 
@@ -194,6 +197,21 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 ),
               ),
             ]),
+            Row(
+              children: [
+                SmoothStarRating(
+                  allowHalfRating: false,
+                  starCount: 3,
+                  size: 30.0,
+                  rating: stars,
+                  onRated: (double value) {
+                    setState(() {
+                      stars = value;
+                    });
+                  },
+                ),
+              ],
+            ),
             // buttons below
             SizedBox(
               height: 50,
@@ -219,7 +237,12 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                       grade: grade,
                     );
                     Ascent ascent = new Ascent(
-                        route: route, comment: commentController.text, date: currentDate, attempts: 1, stars: 3, style: Style(id: styleId));
+                        route: route,
+                        comment: commentController.text,
+                        date: currentDate,
+                        attempts: 1,
+                        stars: stars.toInt(),
+                        style: Style(id: styleId));
                     if (passedAscent != null) {
                       ascent.id = passedAscent.id;
                       ascent.route.id = passedAscent.route.id;
