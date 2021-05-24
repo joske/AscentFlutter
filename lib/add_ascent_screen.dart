@@ -63,7 +63,8 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   ),
                 ),
                 Flexible(
-                  child: TextFormField(
+                  child: TextField(
+                    textCapitalization: TextCapitalization.words,
                     controller: nameController,
                   ),
                 ),
@@ -88,6 +89,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                       if (!snapshot.hasData) return Center();
                       return new DropdownButton(
                           value: cragId,
+                          hint: Text("Select Crag"),
                           items: buildCragList(snapshot),
                           onChanged: (value) {
                             setState(() {
@@ -110,34 +112,37 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 ),
                 Flexible(
                   child: TextField(
+                    textCapitalization: TextCapitalization.words,
                     controller: sectorController,
                   ),
                 ),
               ],
             ),
+            Row(children: [
+              SizedBox(
+                width: 100,
+                child: Text(
+                  'Grade',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ),
+              FutureBuilder<List>(
+                future: DatabaseHelper.getGrades(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return Center();
+                  return new DropdownButton(
+                      value: grade,
+                      items: buildGradeList(snapshot),
+                      onChanged: (value) {
+                        setState(() {
+                          grade = value;
+                        });
+                      });
+                },
+              ),
+            ]),
             Row(
               children: [
-                SizedBox(
-                  width: 100,
-                  child: Text(
-                    'Grade',
-                    style: Theme.of(context).textTheme.bodyText1,
-                  ),
-                ),
-                FutureBuilder<List>(
-                  future: DatabaseHelper.getGrades(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Center();
-                    return new DropdownButton(
-                        value: grade,
-                        items: buildGradeList(snapshot),
-                        onChanged: (value) {
-                          setState(() {
-                            grade = value;
-                          });
-                        });
-                  },
-                ),
                 SizedBox(
                   width: 100,
                   child: Text(
@@ -193,10 +198,14 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
             Row(children: [
               Flexible(
                 child: TextField(
+                  textCapitalization: TextCapitalization.sentences,
                   controller: commentController,
                 ),
               ),
             ]),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               children: [
                 SmoothStarRating(
@@ -214,7 +223,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
             ),
             // buttons below
             SizedBox(
-              height: 50,
+              height: 10,
             ),
             Row(
               children: [
