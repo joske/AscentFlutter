@@ -85,7 +85,7 @@ class DatabaseHelper {
 
   static Future<List<Crag>> getCrags() async {
     await init();
-    final List<Map<String, Object>> queryResult = await _db.query('crag');
+    final List<Map<String, Object>> queryResult = await _db.query('crag', orderBy: "name");
     return queryResult.map((e) => Crag.fromMap(e)).toList();
   }
 
