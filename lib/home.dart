@@ -9,6 +9,7 @@ import 'add_ascent_screen.dart';
 import 'ascent.dart';
 import 'cragscreen.dart';
 import 'database.dart';
+import 'overview.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -133,13 +134,14 @@ class _MyHomePageState extends State<MyHomePage> {
         //     // ...
         //   },
         // ),
-        // ListTile(
-        //   title: Text('Pyramid'),
-        //   onTap: () {
-        //     // Update the state of the app.
-        //     // ...
-        //   },
-        // ),
+        ListTile(
+          title: Text('Statistics'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await overview();
+            setState(() {});
+          },
+        ),
         // ListTile(
         //   title: Text('Top 10'),
         //   onTap: () {
@@ -239,5 +241,13 @@ class _MyHomePageState extends State<MyHomePage> {
       showAlertDialog(context, "Error", "Failed to Import data");
     }
     Navigator.pop(context);
+  }
+
+  overview() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => OverviewScreen()),
+    );
+    setState(() {});
   }
 }

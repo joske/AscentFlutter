@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import 'ascent.dart';
+import 'stats.dart';
 import 'style.dart';
 
 class DatabaseHelper {
@@ -273,5 +274,12 @@ class DatabaseHelper {
         "create view ascent_routes as select a._id as _id, r._id as route_id, r.name as route_name, r.grade as route_grade, a.attempts as attempts, a.comment as comment, s._id as style_id, s.short_name as style, s.score as style_score, a.stars as stars, a.date as date, r.crag_id as crag_id, c.country as crag_country, a.score as score, g.score as grade_score, c.name as crag_name, c._id as crag_id, a.eighta_id as eighta_id, a.modified as modified, r.sector as sector from ascents a inner join routes r on a.route_id = r._id inner join styles s on a.style_id = s._id inner join grades g on g.grade = r.grade inner join crag c on r.crag_id = c._id;");
     await db.execute(
         "create view project_routes as select p._id as _id, r.name as route_name, r.grade as route_grade, c.name as crag_name, p.attempts as attempts from projects p inner join routes r on p.route_id = r._id inner join crag c on r.crag_id = c._id;");
+  }
+
+  static Future<List<Stats>> getStats(int year, int cragId) async {
+    await init();
+    var list = await _db.query("ascent_routes",
+        columns: ["route_grade", "count(*) as done", "count(*) as tried"], groupBy: "route_grade", orderBy: "route_grade desc");
+    return list.map((e) => Stats(grade: e["route_grade"], done: e["done"], tried: e["tried"])).toList();
   }
 }
