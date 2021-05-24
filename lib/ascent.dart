@@ -31,8 +31,8 @@ class Ascent {
         date = DateTime.parse(res["date"]),
         stars = res["stars"],
         comment = res["comment"],
-        score = res["score"],
-        style = Style(id: res["style_id"], name: res["style"], score: res["style_score"]);
+        style = Style(id: res["style_id"], name: res["style"], score: res["style_score"]),
+        score = res["style_id"] != 5 && res["style_id"] != 7 ? res["score"] : 0;
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();

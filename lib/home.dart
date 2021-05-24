@@ -178,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 Text(
-                  "${ascent.route.crag.name}    ${ascent.route.sector}",
+                  "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
                   textAlign: TextAlign.left,
                 ),
               ],
