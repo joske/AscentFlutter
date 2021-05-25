@@ -35,13 +35,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
 
         return SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: DataTable(
+            child: Center(
+                child: DataTable(
               showCheckboxColumn: false,
               columns: const [DataColumn(label: Text("Grade")), DataColumn(label: Text("Done")), DataColumn(label: Text("Tried"))],
               rows: <DataRow>[
                 for (int i = 0; i < snapshot.data.length; i++) buildRow(snapshot.data[i]),
               ],
-            ));
+            )));
       },
     );
   }
