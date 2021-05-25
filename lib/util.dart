@@ -88,3 +88,24 @@ showAlertDialog(BuildContext context, String title, String message) {
     },
   );
 }
+
+showMaterialDialog(BuildContext context, String title, Widget content) {
+  showDialog(
+      context: context,
+      builder: (_) => new AlertDialog(
+            title: title != null ? Text(title) : null,
+            content: SizedBox(
+              child: content,
+              height: 400,
+              width: 400,
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ));
+}

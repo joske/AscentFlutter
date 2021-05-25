@@ -122,12 +122,21 @@ class DatabaseHelper {
     return queryResult.map((e) => Style.fromMap(e)).toList();
   }
 
-  static Future<List<Ascent>> getAscents(String query) async {
+  static Future<List<Ascent>> getAscents(String routeName) async {
+    String where;
+    List<Object> args;
+    if (routeName != null) {
+      where = "route_name like ?";
+      args = [routeName + "%"];
+    }
+    return getAscentsWhere(where, args);
+  }
+
+  static Future<List<Ascent>> getAscentsWhere(String where, List<Object> args) async {
     await init();
     List<Map<String, Object>> queryResult;
-    if (query != null) {
-      query += '%';
-      queryResult = await _db.query('ascent_routes', where: "route_name like ?", whereArgs: [query], orderBy: "date desc");
+    if (where != null) {
+      queryResult = await _db.query('ascent_routes', where: where, whereArgs: args, orderBy: "date desc");
     } else {
       queryResult = await _db.query('ascent_routes', orderBy: "date desc");
     }
@@ -199,6 +208,41 @@ class DatabaseHelper {
       totalScore += 2;
     }
     return totalScore;
+  }
+
+  static Future<List<Stats>> getStats(int year, int cragId) async {
+    await init();
+    var done = await _db.query("ascent_routes",
+        columns: ["route_grade", "count(*) as done"],
+        where: "style_id = 1 or style_id = 2 or style_id = 3",
+        groupBy: "route_grade",
+        orderBy: "route_grade desc");
+    var tried = await _db.query("ascent_routes",
+        columns: ["route_grade", "count(*) as tried"], where: "style_id = 7", groupBy: "route_grade", orderBy: "route_grade desc");
+    List<String> grades = await getGrades();
+    List<Stats> stats = [];
+    Map<String, int> doneMap = Map();
+    Map<String, int> triedMap = Map();
+    for (var e in done) {
+      doneMap.putIfAbsent(e["route_grade"], () => e["done"]);
+    }
+    for (var e in tried) {
+      triedMap.putIfAbsent(e["route_grade"], () => e["tried"]);
+    }
+    for (var g in grades.reversed) {
+      int done = 0;
+      int tried = 0;
+      if (doneMap.containsKey(g)) {
+        done = doneMap[g];
+      }
+      if (triedMap.containsKey(g)) {
+        tried = triedMap[g];
+      }
+      if (done != 0 || tried != 0) {
+        stats.add(Stats(grade: g, done: done, tried: tried));
+      }
+    }
+    return stats;
   }
 
   static Future<void> clear() async {
@@ -274,12 +318,5 @@ class DatabaseHelper {
         "create view ascent_routes as select a._id as _id, r._id as route_id, r.name as route_name, r.grade as route_grade, a.attempts as attempts, a.comment as comment, s._id as style_id, s.short_name as style, s.score as style_score, a.stars as stars, a.date as date, r.crag_id as crag_id, c.country as crag_country, a.score as score, g.score as grade_score, c.name as crag_name, c._id as crag_id, a.eighta_id as eighta_id, a.modified as modified, r.sector as sector from ascents a inner join routes r on a.route_id = r._id inner join styles s on a.style_id = s._id inner join grades g on g.grade = r.grade inner join crag c on r.crag_id = c._id;");
     await db.execute(
         "create view project_routes as select p._id as _id, r.name as route_name, r.grade as route_grade, c.name as crag_name, p.attempts as attempts from projects p inner join routes r on p.route_id = r._id inner join crag c on r.crag_id = c._id;");
-  }
-
-  static Future<List<Stats>> getStats(int year, int cragId) async {
-    await init();
-    var list = await _db.query("ascent_routes",
-        columns: ["route_grade", "count(*) as done", "count(*) as tried"], groupBy: "route_grade", orderBy: "route_grade desc");
-    return list.map((e) => Stats(grade: e["route_grade"], done: e["done"], tried: e["tried"])).toList();
   }
 }
