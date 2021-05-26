@@ -173,10 +173,10 @@ class DatabaseHelper {
     if (score12m == null) {
       score12m = 0;
     }
-    result =
-        await _db.query("ascent_routes", columns: ["score"], where: "style_id <> 7 and style_id <> 5", orderBy: "score desc, date desc", limit: 10);
+    result = await _db.query("ascent_routes",
+        columns: ["score"], where: "style_id <> 7 and style_id <> 5 and score is not null", orderBy: "score desc, date desc", limit: 10);
     var allTime = 0;
-    if (result != null) {
+    if (result != null && result.isNotEmpty) {
       // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
       // strangely the above code for last 12 months DOES correctly limit to first 10 ascents :-/
       // implement it here as a map() + fold()

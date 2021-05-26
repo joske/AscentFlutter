@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:ascent/util.dart';
+import 'package:cupertino_list_tile/cupertino_list_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,6 +22,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return Material(child: CupertinoTabView(builder: (BuildContext context) {
+        return CupertinoPageScaffold(
+            child: Container(
+          padding: EdgeInsets.only(top: 30.0),
+          child: buildRows(context),
+        ));
+      }));
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Statistics'),
@@ -54,7 +67,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   showDetail(String grade) async {
-    showMaterialDialog(context, null, await buildDetailDialog(grade));
+    showMaterialDialog(context, null, await buildDetailDialog(grade), (context) => OverviewScreen());
   }
 
   Future<Widget> buildDetailDialog(String grade) async {
@@ -62,26 +75,35 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Widget buildDetailRow(Ascent ascent) {
-    return ListTile(
-      title: new Text("${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}"),
-      subtitle: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-          Container(
-            child: Text(
-              ascent.comment,
+    var title = new Text("${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}");
+    var subtitle = Column(
+      children: [
+        Row(
+          children: [
+            Text(
+              "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
+              textAlign: TextAlign.left,
             ),
-            alignment: Alignment.topLeft,
+          ],
+        ),
+        Container(
+          child: Text(
+            ascent.comment,
           ),
-        ],
-      ),
+          alignment: Alignment.topLeft,
+        ),
+      ],
     );
+    if (Platform.isIOS) {
+      return CupertinoListTile(
+        title: title,
+        subtitle: subtitle,
+      );
+    } else {
+      return ListTile(
+        title: title,
+        subtitle: subtitle,
+      );
+    }
   }
 }

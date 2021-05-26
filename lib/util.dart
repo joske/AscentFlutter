@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Widget createScrollView<T>(BuildContext context, Future<List<T>> future, Widget Function(T) buildRow) {
@@ -89,10 +92,32 @@ showAlertDialog(BuildContext context, String title, String message) {
   );
 }
 
-showMaterialDialog(BuildContext context, String title, Widget content) {
-  showDialog(
-      context: context,
-      builder: (_) => new AlertDialog(
+showMaterialDialog(BuildContext context, String title, Widget content, Widget Function(BuildContext) returnPage) {
+  if (Platform.isIOS) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+              title: title != null ? Text(title) : null,
+              content: SizedBox(
+                child: content,
+                height: 400,
+                width: 400,
+              ),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                )
+              ],
+            ));
+  } else {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return new AlertDialog(
             title: title != null ? Text(title) : null,
             content: SizedBox(
               child: content,
@@ -107,5 +132,7 @@ showMaterialDialog(BuildContext context, String title, Widget content) {
                 },
               )
             ],
-          ));
+          );
+        });
+  }
 }

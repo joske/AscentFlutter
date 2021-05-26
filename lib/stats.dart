@@ -1,5 +1,3 @@
-import 'crag.dart';
-
 class Stats {
   String grade;
   int done;

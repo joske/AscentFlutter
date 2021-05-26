@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:ascent/util.dart';
+import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'add_crag.dart';
@@ -13,11 +16,15 @@ class CragScreen extends StatefulWidget {
 class _CragScreenState extends State<CragScreen> {
   @override
   Widget build(BuildContext context) {
+    var body = createScrollView(context, DatabaseHelper.getCrags(), _buildRow);
+    if (Platform.isIOS) {
+      return body;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Crags'),
       ),
-      body: createScrollView(context, DatabaseHelper.getCrags(), _buildRow),
+      body: body,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
@@ -32,12 +39,20 @@ class _CragScreenState extends State<CragScreen> {
   }
 
   Widget _buildRow(Crag crag) {
+    var text = new Text(
+      crag.name,
+      style: Theme.of(context).textTheme.bodyText1,
+    );
+    if (Platform.isIOS) {
+      return Card(
+        child: CupertinoListTile(
+          title: text,
+        ),
+      );
+    }
     return Card(
         child: ListTile(
-      title: new Text(
-        crag.name,
-        style: Theme.of(context).textTheme.bodyText1,
-      ),
+      title: text,
     ));
   }
 }

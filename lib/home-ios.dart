@@ -1,32 +1,34 @@
-import 'package:ascent/import.dart';
-import 'package:ascent/util.dart';
+import 'package:cupertino_list_tile/cupertino_list_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:intl/intl.dart';
 
+import 'add_crag-ios.dart';
+import 'cragscreen.dart';
+import 'import.dart';
+import 'util.dart';
 import 'add_ascent_screen.dart';
 import 'ascent.dart';
-import 'cragscreen.dart';
 import 'database.dart';
 import 'overview.dart';
 
-class MaterialHome extends StatefulWidget {
-  MaterialHome({Key key, this.title}) : super(key: key);
+class CupertinoHome extends StatefulWidget {
+  CupertinoHome({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  MaterialHomeState createState() => new MaterialHomeState();
+  CupertinoHomeState createState() => new CupertinoHomeState();
 }
 
-class MaterialHomeState extends State<MaterialHome> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+class CupertinoHomeState extends State<CupertinoHome> {
   SearchBar searchBar;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
   String query;
 
-  MaterialHomeState() {
+  CupertinoHomeState() {
     searchBar = new SearchBar(
         inBar: false,
         setState: setState,
@@ -53,24 +55,79 @@ class MaterialHomeState extends State<MaterialHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: searchBar.build(context),
-      drawer: Drawer(
-        child: buildDrawer(context),
-      ),
-      body: buildBody(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddAscentScreen()),
-          );
-          setState(() {});
-        },
-        child: Icon(Icons.add),
-      ),
-    );
+    return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(items: buildTabBar(context)),
+        tabBuilder: (BuildContext context, int index) {
+          switch (index) {
+            case 0:
+              return buildHomeScreen();
+              break;
+            case 1:
+              return buildCragScreen();
+              break;
+            case 2:
+              return buildStatsScreen();
+              break;
+            case 3:
+              return buildStatsScreen();
+              break;
+            default:
+              return buildHomeScreen();
+          }
+        });
+  }
+
+  Widget buildStatsScreen() {
+    return CupertinoTabView(builder: (BuildContext context) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Crags'),
+        ),
+        child: OverviewScreen(),
+      );
+    });
+  }
+
+  Widget buildCragScreen() {
+    return CupertinoTabView(builder: (BuildContext context) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Crags'),
+          trailing: CupertinoButton(
+            child: Icon(Icons.add),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => CupertinoAddCragScreen()),
+              );
+              setState(() {});
+            },
+          ),
+        ),
+        child: CragScreen(),
+      );
+    });
+  }
+
+  Widget buildHomeScreen() {
+    return CupertinoTabView(builder: (BuildContext context) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(widget.title),
+          trailing: CupertinoButton(
+            child: Icon(Icons.add),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => AddAscentScreen()),
+              );
+              setState(() {});
+            },
+          ),
+        ),
+        child: buildBody(context),
+      );
+    });
   }
 
   Widget buildBody(BuildContext context) {
@@ -78,12 +135,16 @@ class MaterialHomeState extends State<MaterialHome> {
     return Column(
       children: [
         Container(
+          padding: EdgeInsets.only(top: 30),
           color: Colors.grey[200],
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center();
+                }
                 var len = snapshot.data.length;
-                return ListTile(
+                return CupertinoListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [Text("Ascents: $len")],
@@ -105,72 +166,9 @@ class MaterialHomeState extends State<MaterialHome> {
     );
   }
 
-  Widget buildDrawer(BuildContext context) {
-    return ListView(
-      // Important: Remove any padding from the ListView.
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        DrawerHeader(
-          decoration: BoxDecoration(
-            color: Colors.blue,
-          ),
-          child: Text('Ascent'),
-        ),
-        ListTile(
-          title: Text('Crags'),
-          onTap: () async {
-            Navigator.of(context).pop(); // close drawer
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CragScreen()),
-            );
-            setState(() {});
-          },
-        ),
-        // ListTile(
-        //   title: Text('Graph'),
-        //   onTap: () {
-        //     // Update the state of the app.
-        //     // ...
-        //   },
-        // ),
-        ListTile(
-          title: Text('Statistics'),
-          onTap: () async {
-            Navigator.of(context).pop();
-            await overview();
-            setState(() {});
-          },
-        ),
-        // ListTile(
-        //   title: Text('Top 10'),
-        //   onTap: () {
-        //     // Update the state of the app.
-        //     // ...
-        //   },
-        // ),
-        ListTile(
-          title: Text('Import'),
-          onTap: () async {
-            Navigator.of(context).pop();
-            await importData();
-            setState(() {});
-          },
-        ),
-        ListTile(
-          title: Text('Export'),
-          onTap: () async {
-            Navigator.of(context).pop();
-            await exportData();
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildRow(Ascent ascent) {
     return Card(
-      child: ListTile(
+      child: CupertinoListTile(
         title: Text(
           "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
           style: Theme.of(context).textTheme.bodyText1,
@@ -249,5 +247,14 @@ class MaterialHomeState extends State<MaterialHome> {
       MaterialPageRoute(builder: (context) => OverviewScreen()),
     );
     setState(() {});
+  }
+
+  List<BottomNavigationBarItem> buildTabBar(BuildContext context) {
+    return [
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: "Home"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: "Crags"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.search), label: "Search"),
+    ];
   }
 }
