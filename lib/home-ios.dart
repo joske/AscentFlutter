@@ -81,7 +81,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return CupertinoTabView(builder: (BuildContext context) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Crags'),
+          middle: Text('Statistics'),
         ),
         child: OverviewScreen(),
       );
