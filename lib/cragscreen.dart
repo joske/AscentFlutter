@@ -4,6 +4,7 @@ import 'package:ascent/util.dart';
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'add_crag-ios.dart';
 import 'add_crag.dart';
 import 'crag.dart';
 import 'database.dart';
@@ -18,7 +19,7 @@ class _CragScreenState extends State<CragScreen> {
   Widget build(BuildContext context) {
     var body = createScrollView(context, DatabaseHelper.getCrags(), _buildRow);
     if (Platform.isIOS) {
-      return Container(padding: EdgeInsets.only(top: 100.0), child: body);
+      return Container(padding: EdgeInsets.only(top: 100.0, bottom: 70), child: body);
     }
     return Scaffold(
       appBar: AppBar(
@@ -46,13 +47,20 @@ class _CragScreenState extends State<CragScreen> {
     if (Platform.isIOS) {
       return Card(
         child: CupertinoListTile(
-          title: text,
-        ),
+            enabled: true,
+            title: text,
+            onTap: () => showMaterialDialog(context, "Update Crag", CupertinoAddCragScreen(passedCrag: crag), [], 200, 400)),
       );
     }
     return Card(
         child: ListTile(
-      title: text,
-    ));
+            enabled: true,
+            title: text,
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddCragScreen(
+                          passedCrag: crag,
+                        )))));
   }
 }

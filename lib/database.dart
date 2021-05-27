@@ -84,6 +84,13 @@ class DatabaseHelper {
     return id;
   }
 
+  static Future<int> updateCrag(Crag crag) async {
+    await init();
+    var id = await _db.update("crag", crag.toMap(), where: '_id = ?', whereArgs: [crag.id]);
+    print("updated crag ('${crag.name}', '${crag.country}') at id " + id.toString());
+    return id;
+  }
+
   static Future<List<Crag>> getCrags() async {
     await init();
     final List<Map<String, Object>> queryResult = await _db.query('crag', orderBy: "name");

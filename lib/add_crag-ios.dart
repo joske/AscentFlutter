@@ -5,6 +5,15 @@ import 'crag.dart';
 import 'database.dart';
 
 class CupertinoAddCragScreen extends StatelessWidget {
+  final Crag passedCrag;
+
+  CupertinoAddCragScreen({this.passedCrag}) {
+    if (passedCrag != null) {
+      nameController.text = passedCrag.name;
+      countryController.text = passedCrag.country;
+    }
+  }
+
   final TextEditingController nameController = new TextEditingController();
   final TextEditingController countryController = new TextEditingController();
 
@@ -59,11 +68,17 @@ class CupertinoAddCragScreen extends StatelessWidget {
               ),
               CupertinoButton(
                 onPressed: () {
-                  Crag crag = new Crag(name: nameController.text, country: countryController.text);
-                  DatabaseHelper.addCrag(crag);
+                  if (passedCrag != null) {
+                    passedCrag.name = nameController.text;
+                    passedCrag.country = countryController.text;
+                    DatabaseHelper.updateCrag(passedCrag);
+                  } else {
+                    Crag crag = new Crag(name: nameController.text, country: countryController.text);
+                    DatabaseHelper.addCrag(crag);
+                  }
                   Navigator.of(context).pop(false);
                 },
-                child: Text('Add'),
+                child: Text(passedCrag != null ? 'Update' : 'Add'),
               ),
             ],
           ),
