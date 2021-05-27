@@ -28,7 +28,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
   TextEditingController _textController;
 
   CupertinoHomeState() {
-    _textController = TextEditingController(text: 'Search Ascents');
+    _textController = TextEditingController();
   }
 
   void onSubmitted(String value) {
