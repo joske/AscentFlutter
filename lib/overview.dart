@@ -23,13 +23,11 @@ class _OverviewScreenState extends State<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Material(child: CupertinoTabView(builder: (BuildContext context) {
-        return CupertinoPageScaffold(
-            child: Container(
-          padding: EdgeInsets.only(top: 30.0),
-          child: buildRows(context),
-        ));
-      }));
+      return Material(
+          child: Container(
+        padding: EdgeInsets.only(top: 30.0),
+        child: buildRows(context),
+      ));
     }
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +65,23 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   showDetail(String grade) async {
-    showMaterialDialog(context, null, await buildDetailDialog(grade), (context) => OverviewScreen());
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    showMaterialDialog(
+        context,
+        null,
+        await buildDetailDialog(grade),
+        <Widget>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+          )
+        ],
+        height - 100,
+        width);
   }
 
   Future<Widget> buildDetailDialog(String grade) async {

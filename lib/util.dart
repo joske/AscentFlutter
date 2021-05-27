@@ -92,26 +92,18 @@ showAlertDialog(BuildContext context, String title, String message) {
   );
 }
 
-showMaterialDialog(BuildContext context, String title, Widget content, Widget Function(BuildContext) returnPage) {
+showMaterialDialog(BuildContext context, String title, Widget content, List<Widget> actions, double height, double width) {
   if (Platform.isIOS) {
-    showDialog(
+    showCupertinoDialog(
         context: context,
         builder: (BuildContext context) => CupertinoAlertDialog(
               title: title != null ? Text(title) : null,
               content: SizedBox(
                 child: content,
-                height: 400,
-                width: 400,
+                height: height,
+                width: width,
               ),
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  isDefaultAction: true,
-                  child: Text('Close'),
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                )
-              ],
+              actions: actions,
             ));
   } else {
     showDialog(
@@ -121,8 +113,8 @@ showMaterialDialog(BuildContext context, String title, Widget content, Widget Fu
             title: title != null ? Text(title) : null,
             content: SizedBox(
               child: content,
-              height: 400,
-              width: 400,
+              height: height,
+              width: width,
             ),
             actions: <Widget>[
               ElevatedButton(

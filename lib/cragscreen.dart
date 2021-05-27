@@ -18,7 +18,7 @@ class _CragScreenState extends State<CragScreen> {
   Widget build(BuildContext context) {
     var body = createScrollView(context, DatabaseHelper.getCrags(), _buildRow);
     if (Platform.isIOS) {
-      return body;
+      return Container(padding: EdgeInsets.only(top: 100.0), child: body);
     }
     return Scaffold(
       appBar: AppBar(

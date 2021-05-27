@@ -1,3 +1,4 @@
+import 'package:ascent/add_ascent_screen-ios.dart';
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:intl/intl.dart';
 
 import 'add_crag-ios.dart';
 import 'cragscreen.dart';
-import 'import.dart';
+import 'importscreen-ios.dart';
 import 'util.dart';
 import 'add_ascent_screen.dart';
 import 'ascent.dart';
@@ -69,7 +70,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
               return buildStatsScreen();
               break;
             case 3:
-              return buildStatsScreen();
+              return buildImportScreen();
               break;
             default:
               return buildHomeScreen();
@@ -88,6 +89,17 @@ class CupertinoHomeState extends State<CupertinoHome> {
     });
   }
 
+  Widget buildImportScreen() {
+    return CupertinoTabView(builder: (BuildContext context) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Import/Export'),
+        ),
+        child: ImportScreen(),
+      );
+    });
+  }
+
   Widget buildCragScreen() {
     return CupertinoTabView(builder: (BuildContext context) {
       return CupertinoPageScaffold(
@@ -96,10 +108,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
           trailing: CupertinoButton(
             child: Icon(Icons.add),
             onPressed: () async {
-              await Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (context) => CupertinoAddCragScreen()),
-              );
+              await showMaterialDialog(context, "Add Crag", CupertinoAddCragScreen(), [], 200, 400);
               setState(() {});
             },
           ),
@@ -117,9 +126,9 @@ class CupertinoHomeState extends State<CupertinoHome> {
           trailing: CupertinoButton(
             child: Icon(Icons.add),
             onPressed: () async {
-              await Navigator.push(
+              Navigator.push(
                 context,
-                CupertinoPageRoute(builder: (context) => AddAscentScreen()),
+                MaterialPageRoute(builder: (context) => CupertinoAddAscentScreen()),
               );
               setState(() {});
             },
@@ -199,7 +208,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
   void editAscent(Ascent ascent) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddAscentScreen(passedAscent: ascent)),
+      CupertinoPageRoute(builder: (context) => CupertinoAddAscentScreen(passedAscent: ascent)),
     );
     setState(() {});
   }
@@ -209,42 +218,10 @@ class CupertinoHomeState extends State<CupertinoHome> {
     setState(() {});
   }
 
-  Future<void> importData() async {
-    showProgressDialog(context, "Importing");
-    try {
-      var ascents = await CsvImporter().readFile();
-      if (ascents.isNotEmpty) {
-        await DatabaseHelper.clear();
-        setState(() {});
-        for (final a in ascents) {
-          await DatabaseHelper.addAscent(a);
-        }
-      }
-    } catch (e) {
-      print("failed to import $e");
-      Navigator.pop(context);
-      showAlertDialog(context, "Error", "Failed to Import data");
-    }
-    Navigator.pop(context);
-  }
-
-  Future<void> exportData() async {
-    showProgressDialog(context, "Importing");
-    try {
-      var ascents = await DatabaseHelper.getAscents(null);
-      CsvImporter().writeFile(ascents);
-    } catch (e) {
-      print("failed to import $e");
-      Navigator.pop(context);
-      showAlertDialog(context, "Error", "Failed to Import data");
-    }
-    Navigator.pop(context);
-  }
-
   overview() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => OverviewScreen()),
+      CupertinoPageRoute(builder: (context) => OverviewScreen()),
     );
     setState(() {});
   }
@@ -254,7 +231,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: "Crags"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
-      BottomNavigationBarItem(icon: Icon(CupertinoIcons.search), label: "Search"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.floppy_disk), label: "Import/Export"),
     ];
   }
 }
