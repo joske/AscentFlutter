@@ -125,7 +125,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 100, bottom: 20),
+          padding: EdgeInsets.only(top: 100, bottom: 10),
           child: CupertinoSearchTextField(
             controller: _textController,
             onChanged: (String value) {
@@ -151,7 +151,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
                       children: [
                         Text(
                           "Ascents: $len",
-                          style: Theme.of(context).textTheme.bodyText1,
+                          style: Theme.of(context).textTheme.bodyText2,
                         )
                       ],
                     ),
@@ -162,7 +162,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
                             var score = snapshot.data != null ? snapshot.data : "0";
                             return Text(
                               "Score: $score",
-                              style: Theme.of(context).textTheme.bodyText1,
+                              style: Theme.of(context).textTheme.bodyText2,
                             );
                           })
                     ]));
