@@ -32,6 +32,7 @@ class MaterialHomeState extends State<MaterialHome> {
         setState: setState,
         clearOnSubmit: false,
         onSubmitted: onSubmitted,
+        onChanged: onSubmitted,
         onCleared: () {
           query = null;
           setState(() => {});
@@ -127,13 +128,6 @@ class MaterialHomeState extends State<MaterialHome> {
             setState(() {});
           },
         ),
-        // ListTile(
-        //   title: Text('Graph'),
-        //   onTap: () {
-        //     // Update the state of the app.
-        //     // ...
-        //   },
-        // ),
         ListTile(
           title: Text('Statistics'),
           onTap: () async {
@@ -142,13 +136,6 @@ class MaterialHomeState extends State<MaterialHome> {
             setState(() {});
           },
         ),
-        // ListTile(
-        //   title: Text('Top 10'),
-        //   onTap: () {
-        //     // Update the state of the app.
-        //     // ...
-        //   },
-        // ),
         ListTile(
           title: Text('Import'),
           onTap: () async {

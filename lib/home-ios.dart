@@ -2,7 +2,6 @@ import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:intl/intl.dart';
 
 import 'add_ascent_screen-ios.dart';
@@ -24,29 +23,12 @@ class CupertinoHome extends StatefulWidget {
 }
 
 class CupertinoHomeState extends State<CupertinoHome> {
-  SearchBar searchBar;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
   String query;
+  TextEditingController _textController;
 
   CupertinoHomeState() {
-    searchBar = new SearchBar(
-        inBar: false,
-        setState: setState,
-        clearOnSubmit: false,
-        onSubmitted: onSubmitted,
-        onCleared: () {
-          query = null;
-          setState(() => {});
-        },
-        onClosed: () {
-          query = null;
-          setState(() => {});
-        },
-        buildDefaultAppBar: buildAppBar);
-  }
-
-  Widget buildAppBar(BuildContext context) {
-    return AppBar(title: Text(widget.title), actions: [searchBar.getSearchAction(context)]);
+    _textController = TextEditingController(text: 'Search Ascents');
   }
 
   void onSubmitted(String value) {
@@ -143,7 +125,18 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 30),
+          padding: EdgeInsets.only(top: 100, bottom: 20),
+          child: CupertinoSearchTextField(
+            controller: _textController,
+            onChanged: (String value) {
+              setState(() => query = value);
+            },
+            onSubmitted: (String value) {
+              setState(() => query = value);
+            },
+          ),
+        ),
+        Container(
           color: Colors.grey[200],
           child: FutureBuilder(
               future: ascents,
@@ -155,14 +148,22 @@ class CupertinoHomeState extends State<CupertinoHome> {
                 return CupertinoListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Text("Ascents: $len")],
+                      children: [
+                        Text(
+                          "Ascents: $len",
+                          style: Theme.of(context).textTheme.bodyText1,
+                        )
+                      ],
                     ),
                     trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                       FutureBuilder(
                           future: DatabaseHelper.getScore(),
                           builder: (context, snapshot) {
                             var score = snapshot.data != null ? snapshot.data : "0";
-                            return Text("Score: $score");
+                            return Text(
+                              "Score: $score",
+                              style: Theme.of(context).textTheme.bodyText1,
+                            );
                           })
                     ]));
               }),
