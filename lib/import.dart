@@ -41,6 +41,7 @@ class CsvImporter {
 
   Future<void> writeFile(List<Ascent> ascents) async {
     final file = await _localFile;
+    print("exporting to $file");
     StringBuffer buf = StringBuffer();
     for (Ascent a in ascents) {
       buf.write(a.encode());

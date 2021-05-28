@@ -208,6 +208,9 @@ class MaterialHomeState extends State<MaterialHome> {
         for (final a in ascents) {
           await DatabaseHelper.addAscent(a);
         }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Imported ${ascents.length} ascents"),
+        ));
       }
     } catch (e) {
       print("failed to import $e");
@@ -222,6 +225,9 @@ class MaterialHomeState extends State<MaterialHome> {
     try {
       var ascents = await DatabaseHelper.getAscents(null);
       CsvImporter().writeFile(ascents);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Exported ${ascents.length} ascents"),
+      ));
     } catch (e) {
       print("failed to import $e");
       Navigator.pop(context);
