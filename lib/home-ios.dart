@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,16 +44,12 @@ class CupertinoHomeState extends State<CupertinoHome> {
           switch (index) {
             case 0:
               return buildHomeScreen();
-              break;
             case 1:
               return buildCragScreen();
-              break;
             case 2:
               return buildStatsScreen();
-              break;
             case 3:
               return buildImportScreen();
-              break;
             default:
               return buildHomeScreen();
           }

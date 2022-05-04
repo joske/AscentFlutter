@@ -1,3 +1,4 @@
+// @dart=2.9
 class Style {
   final int id;
   final String name;
