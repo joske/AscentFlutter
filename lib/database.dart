@@ -140,6 +140,26 @@ class DatabaseHelper {
     return getAscentsWhere(where, args);
   }
 
+  static Future<List<int>> getFirstYearWithAscents() async {
+    await init();
+    List<Map<String, Object>> res = await _db.query('ascent_routes', columns: ["date"], orderBy: "date ASC");
+    DateTime firstYear = DateTime.parse(res.first["date"]);
+    int numYears = new DateTime.now().year - firstYear.year + 1;
+    return List.generate(numYears, (i) => firstYear.year + i);
+  }
+
+  static Future<List<Ascent>> getAscentsForCrag(int year, int cragId) async {
+    await init();
+    String where;
+    List<Object> args;
+    if (cragId > -1 && year > -1) {
+      where = "crag_id = ?"; // and strftime('%Y', date) = ?";
+      args = [cragId];
+      return getAscentsWhere(where, args);
+    }
+    return Future.sync(() => List.empty());
+  }
+
   static Future<List<Ascent>> getAscentsWhere(String where, List<Object> args) async {
     await init();
     List<Map<String, Object>> queryResult;

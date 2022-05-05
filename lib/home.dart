@@ -1,8 +1,8 @@
 // @dart=2.9
 import 'package:ascent/import.dart';
+import 'package:ascent/summary.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:intl/intl.dart';
 
@@ -84,7 +84,7 @@ class MaterialHomeState extends State<MaterialHome> {
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
-                var len = snapshot.data.length;
+                var len = snapshot != null && snapshot.data != null ? snapshot.data.length : 0;
                 return ListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -134,6 +134,14 @@ class MaterialHomeState extends State<MaterialHome> {
           onTap: () async {
             Navigator.of(context).pop();
             await overview();
+            setState(() {});
+          },
+        ),
+        ListTile(
+          title: Text('Summary'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await summary();
             setState(() {});
           },
         ),
@@ -241,6 +249,14 @@ class MaterialHomeState extends State<MaterialHome> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => OverviewScreen()),
+    );
+    setState(() {});
+  }
+
+  summary() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SummaryScreen()),
     );
     setState(() {});
   }
