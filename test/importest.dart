@@ -1,6 +1,7 @@
+// @dart=2.9
 import 'package:ascent/ascent.dart';
-import 'package:test/test.dart';
 import 'package:ascent/import.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Import from json', () {
