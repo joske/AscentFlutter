@@ -33,10 +33,7 @@ class CsvImporter {
   List<Ascent> parse(String contents) {
     LineSplitter splitter = new LineSplitter();
     var lines = splitter.convert(contents);
-    List<Ascent> ascents = [];
-    for (var i = 0; i < lines.length; i++) {
-      ascents.add(Ascent.fromString(lines[i]));
-    }
+    List<Ascent> ascents = lines.map((line) => Ascent.fromString(line)).toList();
     return ascents;
   }
 
@@ -48,5 +45,10 @@ class CsvImporter {
       buf.write(a.encode());
     }
     file.writeAsString(buf.toString());
+  }
+
+  List<Ascent> parseEightAJson(String data) {
+    List list = json.decode(data);
+    return list.map((item) => Ascent.fromJson(item)).toList();
   }
 }

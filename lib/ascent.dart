@@ -14,6 +14,7 @@ class Ascent {
   int stars;
   Style style;
   String comment;
+  int eightAId;
 
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
@@ -94,5 +95,26 @@ class Ascent {
     line.write(stars);
     line.write("\r\n");
     return line.toString();
+  }
+
+  Ascent.fromJson(Map<String, dynamic> res) {
+    String area = res["areaName"];
+    String cragName = res["cragName"];
+    String sectorName = res["sectorSlug"];
+    route = Route(
+        name: res["zlaggableName"],
+        grade: res["difficulty"],
+        sector: area != null ? cragName : sectorName,
+        crag: Crag(name: area != null ? area : cragName, country: res["countrySlug"]));
+    date = DateTime.parse(res["date"]);
+    stars = res["rating"];
+    comment = res["comment"];
+    String styleCode = res["type"];
+    style = Style.fromEightACode(styleCode);
+  }
+
+  @override
+  String toString() {
+    return "Ascent($id ${route.name} ${route.grade} ${style.shortName} ${route.crag.name} ${route.sector} $score $stars ${formatter.format(date)} $comment";
   }
 }

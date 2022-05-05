@@ -177,22 +177,16 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                   SizedBox(
                     width: 100,
                     height: 100,
-                    child: FutureBuilder<List>(
-                      future: DatabaseHelper.getStyles(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return Center();
-                        return new CupertinoPicker(
-                            scrollController: FixedExtentScrollController(initialItem: styleId - 1),
-                            looping: false,
-                            itemExtent: 20,
-                            children: buildStyleListIOS(snapshot),
-                            onSelectedItemChanged: (value) {
-                              setState(() {
-                                styleId = value;
-                              });
-                            });
-                      },
-                    ),
+                    child: CupertinoPicker(
+                        scrollController: FixedExtentScrollController(initialItem: styleId - 1),
+                        looping: false,
+                        itemExtent: 20,
+                        children: buildStyleListIOS(DatabaseHelper.styles),
+                        onSelectedItemChanged: (value) {
+                          setState(() {
+                            styleId = value;
+                          });
+                        }),
                   )
                 ],
               ),
@@ -340,8 +334,8 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
       });
   }
 
-  List<Widget> buildStyleListIOS(AsyncSnapshot<List> snapshot) {
-    List<Widget> list = snapshot.data.map((style) {
+  List<Widget> buildStyleListIOS(List<Style> snapshot) {
+    List<Widget> list = snapshot.map((style) {
       return Text(style.name);
     }).toList();
     return list;

@@ -151,20 +151,14 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     style: Theme.of(context).textTheme.bodyText1,
                   ),
                 ),
-                FutureBuilder<List>(
-                  future: DatabaseHelper.getStyles(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Center();
-                    return new DropdownButton(
-                        value: styleId,
-                        items: buildStyleList(snapshot),
-                        onChanged: (value) {
-                          setState(() {
-                            styleId = value;
-                          });
-                        });
-                  },
-                ),
+                DropdownButton(
+                    value: styleId,
+                    items: buildStyleList(DatabaseHelper.styles),
+                    onChanged: (value) {
+                      setState(() {
+                        styleId = value;
+                      });
+                    }),
               ],
             ),
             Row(
@@ -302,8 +296,8 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
       });
   }
 
-  List<DropdownMenuItem> buildStyleList(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem> list = snapshot.data.map((style) {
+  List<DropdownMenuItem> buildStyleList(List<Style> snapshot) {
+    List<DropdownMenuItem> list = snapshot.map((style) {
       return DropdownMenuItem<int>(
         child: Text(style.name),
         value: style.id,

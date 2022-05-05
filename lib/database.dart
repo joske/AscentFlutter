@@ -14,6 +14,8 @@ class DatabaseHelper {
 
   static int get _version => 1;
 
+  static final List<Style> styles = createStyleList();
+
   static Future<void> init() async {
     if (_db != null) {
       return;
@@ -124,10 +126,8 @@ class DatabaseHelper {
     return queryResult.map((e) => e["grade"].toString()).toList();
   }
 
-  static Future<List<Style>> getStyles() async {
-    await init();
-    final List<Map<String, Object>> queryResult = await _db.query('styles');
-    return queryResult.map((e) => Style.fromMap(e)).toList();
+  static List<Style> getStyles() {
+    return styles;
   }
 
   static Future<List<Ascent>> getAscents(String routeName) async {
@@ -259,6 +259,18 @@ class DatabaseHelper {
     await _db.rawDelete("delete from routes");
     await _db.rawDelete("delete from projects");
     await _db.rawDelete("delete from ascents");
+  }
+
+  static List<Style> createStyleList() {
+    List<Style> list = [];
+    list.add(Style(id: 1, name: "OnSight", shortName: "OS", score: 145));
+    list.add(Style(id: 2, name: "Flash", shortName: "FL", score: 53));
+    list.add(Style(id: 3, name: "Redpoint", shortName: "RP", score: 0));
+    list.add(Style(id: 4, name: "Toprope", shortName: "TP", score: -52));
+    list.add(Style(id: 5, name: "Repeat", shortName: "Rep", score: 0));
+    list.add(Style(id: 6, name: "Multipitch", shortName: "MP", score: 0));
+    list.add(Style(id: 7, name: "Tried", shortName: "AT", score: 0));
+    return list;
   }
 
   static void onCreate(Database db, int version) async {
