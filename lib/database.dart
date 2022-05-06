@@ -153,8 +153,8 @@ class DatabaseHelper {
     String where;
     List<Object> args;
     if (cragId > -1 && year > -1) {
-      where = "crag_id = ?"; // and strftime('%Y', date) = ?";
-      args = [cragId];
+      where = "crag_id = ? and strftime('%Y', date) = ?";
+      args = [cragId, year.toString()];
       return getAscentsWhere(where, args);
     }
     return Future.sync(() => List.empty());
