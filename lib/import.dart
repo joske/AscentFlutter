@@ -7,16 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'ascent.dart';
 
 class CsvImporter {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/ascent-export.csv');
-  }
 
   Future<List<Ascent>> readFile() async {
     FilePickerResult result = await FilePicker.platform.pickFiles();
@@ -38,17 +28,22 @@ class CsvImporter {
   }
 
   Future<void> writeFile(List<Ascent> ascents) async {
-    final file = await _localFile;
-    print("exporting to $file");
-    StringBuffer buf = StringBuffer();
-    for (Ascent a in ascents) {
-      buf.write(a.encode());
+    String directory = await FilePicker.platform.getDirectoryPath();
+
+    if (directory != null) {
+      File file = File(directory + "/ascent-export.csv");
+      print("exporting to $file");
+      StringBuffer buf = StringBuffer();
+      for (Ascent a in ascents) {
+        buf.write(a.encode());
+      }
+      file.writeAsString(buf.toString());
     }
-    file.writeAsString(buf.toString());
   }
 
   List<Ascent> parseEightAJson(String data) {
     List list = json.decode(data);
     return list.map((item) => Ascent.fromJson(item)).toList();
   }
+  
 }
