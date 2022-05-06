@@ -35,11 +35,7 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData(
           primarySwatch: Colors.blue,
           brightness: Brightness.dark,
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.grey[800],
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
+          
         ),
         themeMode: ThemeMode.system,
         home: MaterialHome(title: 'Ascents'),

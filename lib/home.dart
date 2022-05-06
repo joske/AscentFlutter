@@ -80,7 +80,6 @@ class MaterialHomeState extends State<MaterialHome> {
     return Column(
       children: [
         Container(
-          color: Colors.grey[200],
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
