@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 
 import 'home.dart';
 
-
 void main() {
   runApp(MyApp());
 }
@@ -31,7 +30,18 @@ class MyApp extends StatelessWidget {
         title: 'Ascents',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          brightness: Brightness.light,
         ),
+        darkTheme: ThemeData(
+          primarySwatch: Colors.blue,
+          brightness: Brightness.dark,
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.grey[800],
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+        ),
+        themeMode: ThemeMode.system,
         home: MaterialHome(title: 'Ascents'),
       );
     }
