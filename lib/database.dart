@@ -140,24 +140,30 @@ class DatabaseHelper {
     return getAscentsWhere(where, args);
   }
 
-  static Future<List<int>> getFirstYearWithAscents() async {
+  static Future<List<String>> getYearsWithAscents() async {
     await init();
     List<Map<String, Object>> res = await _db.query('ascent_routes', columns: ["date"], orderBy: "date ASC");
     DateTime firstYear = DateTime.parse(res.first["date"]);
     int numYears = new DateTime.now().year - firstYear.year + 1;
-    return List.generate(numYears, (i) => firstYear.year + i);
+    var list = List.generate(numYears, (i) => (firstYear.year + i).toString());
+    list.insert(0, "All");
+    return list;
   }
 
-  static Future<List<Ascent>> getAscentsForCrag(int year, int cragId) async {
+  static Future<List<Ascent>> getAscentsForCrag(String year, int cragId) async {
     await init();
     String where;
-    List<Object> args;
-    if (cragId > -1 && year > -1) {
-      where = "crag_id = ? and strftime('%Y', date) = ?";
-      args = [cragId, year.toString()];
-      return getAscentsWhere(where, args);
+    List<Object> args = List.empty(growable: true);
+    where = "style_id not null"; // to simplify the append of the criteria ("*")
+    if (cragId > 0) {
+      where += " and crag_id = ?";
+      args.add(cragId);
     }
-    return Future.sync(() => List.empty());
+    if (year != "All") {
+      where += " and strftime('%Y', date) = ?";
+      args.add(year);
+    }
+    return getAscentsWhere(where, args);
   }
 
   static Future<List<Ascent>> getAscentsWhere(String where, List<Object> args) async {

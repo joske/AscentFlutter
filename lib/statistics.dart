@@ -7,14 +7,15 @@ import 'package:intl/intl.dart';
 import 'ascent.dart';
 import 'database.dart';
 
-class SummaryScreen extends StatefulWidget {
+class StatisticsScreen extends StatefulWidget {
   @override
-  _SummaryScreenState createState() => _SummaryScreenState();
+  _StatisticsScreenState createState() => _StatisticsScreenState();
 }
 
-class _SummaryScreenState extends State<SummaryScreen> {
-  int year = -1;
-  int cragId = -1;
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  String year = "All";
+  int cragId = 0;
+  int numAscents = 0;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
   @override
@@ -36,7 +37,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 child: ListTile(
               leading: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 FutureBuilder<List>(
-                    future: DatabaseHelper.getFirstYearWithAscents(),
+                    future: DatabaseHelper.getYearsWithAscents(),
                     initialData: List.empty(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return Center();
@@ -47,9 +48,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           value: year,
                           hint: Text("Year"),
                           items: buildYears(snapshot),
-                          onChanged: (value) {
+                          onChanged: (value) async {
+                            var len = (await DatabaseHelper.getAscentsForCrag(value, cragId)).length;
                             setState(() {
                               year = value;
+                              numAscents = len;
                             });
                           });
                     }),
@@ -60,21 +63,23 @@ class _SummaryScreenState extends State<SummaryScreen> {
                     initialData: List.empty(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return Center();
-                      if (cragId == -1) {
-                        cragId = 1; // if we get here we have at least 1 item
-                      }
                       return new DropdownButton(
                           value: cragId,
                           hint: Text("Select Crag"),
                           items: buildCragList(snapshot),
-                          onChanged: (value) {
+                          onChanged: (value) async {
+                            var len = (await DatabaseHelper.getAscentsForCrag(year, value)).length;
                             setState(() {
                               cragId = value;
+                              numAscents = len;
                             });
                           });
                     }),
               ]),
             ))
+          ]),
+          Row(children: [
+            Text("Showing $numAscents Ascents"),
           ]),
           Flexible(
             child: buildRows(context),
@@ -88,9 +93,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
       initialData: List.empty(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Center();
-        if (cragId == -1) {
-          cragId = 1; // if we get here, we have at least 1 crag
-        }
+        numAscents = snapshot.data.length;
         return new Scrollbar(
             thickness: 30,
             interactive: true,
@@ -142,13 +145,14 @@ class _SummaryScreenState extends State<SummaryScreen> {
         value: crag.id,
       );
     }).toList();
+    list.insert(0, new DropdownMenuItem<int>(child: Text("All"), value: 0));
     return list;
   }
 
-  List<DropdownMenuItem<int>> buildYears(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem<int>> list = snapshot.data.map((year) {
-      return DropdownMenuItem<int>(
-        child: Text(year.toString()),
+  List<DropdownMenuItem<String>> buildYears(AsyncSnapshot<List> snapshot) {
+    List<DropdownMenuItem<String>> list = snapshot.data.map((year) {
+      return DropdownMenuItem<String>(
+        child: Text(year),
         value: year,
       );
     }).toList();

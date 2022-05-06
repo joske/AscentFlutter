@@ -1,6 +1,6 @@
 // @dart=2.9
 import 'package:ascent/import.dart';
-import 'package:ascent/summary.dart';
+import 'package:ascent/statistics.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
@@ -130,7 +130,7 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
-          title: Text('Statistics'),
+          title: Text('Summary'),
           onTap: () async {
             Navigator.of(context).pop();
             await overview();
@@ -138,10 +138,10 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
-          title: Text('Summary'),
+          title: Text('Statistics'),
           onTap: () async {
             Navigator.of(context).pop();
-            await summary();
+            await statistics();
             setState(() {});
           },
         ),
@@ -253,10 +253,10 @@ class MaterialHomeState extends State<MaterialHome> {
     setState(() {});
   }
 
-  summary() async {
+  statistics() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SummaryScreen()),
+      MaterialPageRoute(builder: (context) => StatisticsScreen()),
     );
     setState(() {});
   }
