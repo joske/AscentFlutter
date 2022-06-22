@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'ascent.dart';
 
 class CsvImporter {
-
   Future<List<Ascent>> readFile() async {
     FilePickerResult result = await FilePicker.platform.pickFiles();
 
@@ -45,5 +43,4 @@ class CsvImporter {
     List list = json.decode(data);
     return list.map((item) => Ascent.fromJson(item)).toList();
   }
-  
 }

@@ -23,68 +23,72 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (Platform.isIOS) {
       return Material(
           child: Container(
-        padding: EdgeInsets.only(top: 30.0),
-        child: buildRows(context),
+        padding: EdgeInsets.only(top: 60.0),
+        child: buildBody(context),
       ));
     }
     return Scaffold(
         appBar: AppBar(
           title: Text('Statistics'),
         ),
-        body: Column(children: [
-          Row(children: [
-            Flexible(
-                child: ListTile(
-              leading: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FutureBuilder<List>(
-                    future: DatabaseHelper.getYearsWithAscents(),
-                    initialData: List.empty(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return Center();
-                      if (year == -1 && snapshot.data.length > 0) {
-                        year = snapshot.data[0];
-                      }
-                      return new DropdownButton(
-                          value: year,
-                          hint: Text("Year"),
-                          items: buildYears(snapshot),
-                          onChanged: (value) async {
-                            var len = (await DatabaseHelper.getAscentsForCrag(value, cragId)).length;
-                            setState(() {
-                              year = value;
-                              numAscents = len;
-                            });
-                          });
-                    }),
-              ]),
-              trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FutureBuilder<List>(
-                    future: DatabaseHelper.getCrags(),
-                    initialData: List.empty(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return Center();
-                      return new DropdownButton(
-                          value: cragId,
-                          hint: Text("Select Crag"),
-                          items: buildCragList(snapshot),
-                          onChanged: (value) async {
-                            var len = (await DatabaseHelper.getAscentsForCrag(year, value)).length;
-                            setState(() {
-                              cragId = value;
-                              numAscents = len;
-                            });
-                          });
-                    }),
-              ]),
-            ))
+        body: buildBody(context));
+  }
+
+  Widget buildBody(BuildContext context) {
+    return Column(children: [
+      Row(children: [
+        Flexible(
+            child: ListTile(
+          leading: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            FutureBuilder<List>(
+                future: DatabaseHelper.getYearsWithAscents(),
+                initialData: List.empty(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return Center();
+                  if (year == "All" && snapshot.data.length > 0) {
+                    year = snapshot.data[0];
+                  }
+                  return new DropdownButton(
+                      value: year,
+                      hint: Text("Year"),
+                      items: buildYears(snapshot),
+                      onChanged: (value) async {
+                        var len = (await DatabaseHelper.getAscentsForCrag(value, cragId)).length;
+                        setState(() {
+                          year = value;
+                          numAscents = len;
+                        });
+                      });
+                }),
           ]),
-          Row(children: [
-            Text("Showing $numAscents Ascents"),
+          trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            FutureBuilder<List>(
+                future: DatabaseHelper.getCrags(),
+                initialData: List.empty(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return Center();
+                  return new DropdownButton(
+                      value: cragId,
+                      hint: Text("Select Crag"),
+                      items: buildCragList(snapshot),
+                      onChanged: (value) async {
+                        var len = (await DatabaseHelper.getAscentsForCrag(year, value)).length;
+                        setState(() {
+                          cragId = value;
+                          numAscents = len;
+                        });
+                      });
+                }),
           ]),
-          Flexible(
-            child: buildRows(context),
-          ),
-        ]));
+        ))
+      ]),
+      Row(children: [
+        Text("Showing $numAscents Ascents"),
+      ]),
+      Flexible(
+        child: buildRows(context),
+      ),
+    ]);
   }
 
   Widget buildRows(BuildContext context) {
