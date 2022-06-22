@@ -135,7 +135,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 100, bottom: 10),
+          padding: EdgeInsets.only(top: 70, bottom: 10),
           child: CupertinoSearchTextField(
             controller: _textController,
             onChanged: (String value) {
