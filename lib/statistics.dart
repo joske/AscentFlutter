@@ -29,7 +29,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: Text('Summary'),
+          title: Text('Statistics'),
         ),
         body: Column(children: [
           Row(children: [

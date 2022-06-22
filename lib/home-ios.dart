@@ -1,4 +1,5 @@
 // @dart=2.9
+import 'package:ascent/statistics.dart';
 import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,10 @@ class CupertinoHomeState extends State<CupertinoHome> {
             case 1:
               return buildCragScreen();
             case 2:
-              return buildStatsScreen();
+              return buildSummaryScreen();
             case 3:
+              return buildStatsScreen();
+            case 4:
               return buildImportScreen();
             default:
               return buildHomeScreen();
@@ -60,6 +63,17 @@ class CupertinoHomeState extends State<CupertinoHome> {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Statistics'),
+        ),
+        child: StatisticsScreen(),
+      );
+    });
+  }
+
+  Widget buildSummaryScreen() {
+    return CupertinoTabView(builder: (BuildContext context) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Summary'),
         ),
         child: OverviewScreen(),
       );
@@ -226,6 +240,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return [
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: "Crags"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.sum), label: "Summary"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.floppy_disk), label: "Import/Export"),
     ];
