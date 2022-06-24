@@ -23,7 +23,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (Platform.isIOS) {
       return Material(
           child: Container(
-        padding: EdgeInsets.only(top: 60.0),
+        padding: EdgeInsets.only(top: 95.0),
         child: buildBody(context),
       ));
     }

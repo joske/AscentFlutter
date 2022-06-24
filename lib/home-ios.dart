@@ -117,7 +117,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
           trailing: CupertinoButton(
             child: Icon(Icons.add),
             onPressed: () async {
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => CupertinoAddAscentScreen()),
               );
@@ -135,7 +135,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 70, bottom: 10),
+          padding: EdgeInsets.only(top: 95),
           child: CupertinoSearchTextField(
             controller: _textController,
             onChanged: (String value) {

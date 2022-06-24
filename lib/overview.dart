@@ -19,20 +19,19 @@ class OverviewScreen extends StatefulWidget {
 class _OverviewScreenState extends State<OverviewScreen> {
   int year = -1;
   int cragId = -1;
-  DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
       return Material(
           child: Container(
-        padding: EdgeInsets.only(top: 30.0),
+        padding: EdgeInsets.only(top: 100.0, bottom: 100),
         child: buildRows(context),
       ));
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('Statistics'),
+        title: Text('Summary'),
       ),
       body: buildRows(context),
     );
@@ -62,7 +61,21 @@ class _OverviewScreenState extends State<OverviewScreen> {
   DataRow buildRow(Stats e) {
     return DataRow(
         cells: [DataCell(Text(e.grade)), DataCell(Text(e.done.toString())), DataCell(Text(e.tried.toString()))],
-        onSelectChanged: (value) => showDetail(e.grade));
+        onSelectChanged: (value) => {
+              if (Platform.isIOS)
+                {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      opaque: true,
+                      pageBuilder: (context, _, __) {
+                        return FullDialogPage(e.grade);
+                      },
+                    ),
+                  )
+                }
+              else
+                {showDetail(e.grade)}
+            });
   }
 
   showDetail(String grade) async {
@@ -86,17 +99,25 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Future<Widget> buildDetailDialog(String grade) async {
+    return DialogBuilder.buildScrollView(context, grade);
+  }
+}
+
+class DialogBuilder {
+  static DateFormat formatter = new DateFormat('yyyy-MM-dd');
+
+  static Widget buildScrollView(BuildContext context, String grade) {
     return createScrollView(context, DatabaseHelper.getAscentsWhere("route_grade = ?", [grade]), buildDetailRow);
   }
 
-  Widget buildDetailRow(Ascent ascent) {
+  static Widget buildDetailRow(Ascent ascent) {
     var title = new Text("${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}");
     var subtitle = Column(
       children: [
         Row(
           children: [
             Text(
-              "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
+              "${ascent.route.crag.name}    ${ascent.route.sector}",
               textAlign: TextAlign.left,
             ),
           ],
@@ -120,5 +141,70 @@ class _OverviewScreenState extends State<OverviewScreen> {
         subtitle: subtitle,
       );
     }
+  }
+}
+
+//Second Page
+class FullDialogPage extends StatefulWidget {
+  String grade;
+  FullDialogPage(String grade) {
+    this.grade = grade;
+  }
+
+  @override
+  _FullDialogPageState createState() => _FullDialogPageState(grade);
+}
+
+class _FullDialogPageState extends State<FullDialogPage> with TickerProviderStateMixin {
+  String grade;
+  AnimationController _primary, _secondary;
+  Animation<double> _animationPrimary, _animationSecondary;
+
+  _FullDialogPageState(String grade) {
+    this.grade = grade;
+  }
+
+  @override
+  void initState() {
+    //Primaty
+    _primary = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _animationPrimary = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _primary, curve: Curves.easeOut));
+    //Secondary
+    _secondary = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _animationSecondary = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _secondary, curve: Curves.easeOut));
+    _primary.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _primary.dispose();
+    _secondary.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoFullscreenDialogTransition(
+      primaryRouteAnimation: _animationPrimary,
+      secondaryRouteAnimation: _animationSecondary,
+      linearTransition: false,
+      child: Container(
+          padding: EdgeInsets.only(top: 100, bottom: 100),
+          child: Column(
+            children: [
+              Flexible(child: DialogBuilder.buildScrollView(context, grade)),
+              Row(
+                children: [
+                  CupertinoButton(
+                      child: Text("Close"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      })
+                ],
+              )
+            ],
+          )),
+    );
   }
 }
