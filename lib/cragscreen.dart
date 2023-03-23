@@ -42,7 +42,7 @@ class _CragScreenState extends State<CragScreen> {
   Widget _buildRow(Crag crag) {
     var text = new Text(
       crag.name,
-      style: Theme.of(context).textTheme.bodyText1,
+      style: Theme.of(context).textTheme.bodyLarge,
     );
     if (Platform.isIOS) {
       return Card(

@@ -33,7 +33,7 @@ class AddCragScreen extends StatelessWidget {
                   width: 100,
                   child: Text(
                     'Crag Name',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 Flexible(
@@ -49,7 +49,7 @@ class AddCragScreen extends StatelessWidget {
                   width: 100,
                   child: Text(
                     'Country',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 Flexible(

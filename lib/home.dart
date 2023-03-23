@@ -168,7 +168,7 @@ class MaterialHomeState extends State<MaterialHome> {
       child: ListTile(
         title: Text(
           "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         subtitle: Column(
           children: [

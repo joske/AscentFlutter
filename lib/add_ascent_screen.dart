@@ -60,7 +60,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 100,
                   child: Text(
                     'Name',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 Flexible(
@@ -77,7 +77,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 100,
                   child: Text(
                     'Crag',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 SizedBox(
@@ -108,7 +108,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 100,
                   child: Text(
                     'Sector',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 Flexible(
@@ -124,7 +124,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 width: 100,
                 child: Text(
                   'Grade',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
               FutureBuilder<List>(
@@ -148,7 +148,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 100,
                   child: Text(
                     'Style',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 DropdownButton(
@@ -167,7 +167,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   width: 100,
                   child: Text(
                     'Date',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 SizedBox(
@@ -186,7 +186,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 width: 100,
                 child: Text(
                   'Comment',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ]),

@@ -1,6 +1,5 @@
 // @dart=2.9
 import 'package:ascent/statistics.dart';
-import 'package:cupertino_list_tile/cupertino_list_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -156,12 +155,13 @@ class CupertinoHomeState extends State<CupertinoHome> {
                 }
                 var len = snapshot.data.length;
                 return CupertinoListTile(
+                    title: Text(""),
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Ascents: $len",
-                          style: Theme.of(context).textTheme.bodyText2,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         )
                       ],
                     ),
@@ -172,7 +172,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
                             var score = snapshot.data != null ? snapshot.data : "0";
                             return Text(
                               "Score: $score",
-                              style: Theme.of(context).textTheme.bodyText2,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             );
                           })
                     ]));
@@ -190,7 +190,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
       child: CupertinoListTile(
         title: Text(
           "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         subtitle: Column(
           children: [
