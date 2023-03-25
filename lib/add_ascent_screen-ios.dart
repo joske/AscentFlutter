@@ -1,8 +1,7 @@
-// @dart=2.9
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 import 'ascent.dart';
 import 'crag.dart';
@@ -11,41 +10,41 @@ import 'route.dart' as mine;
 import 'style.dart';
 
 class CupertinoAddAscentScreen extends StatefulWidget {
-  final Ascent passedAscent;
+  final Ascent? passedAscent;
 
-  CupertinoAddAscentScreen({Key key, this.passedAscent});
+  CupertinoAddAscentScreen({Key? key, this.passedAscent});
 
   @override
   _CupertinoAddAscentScreenState createState() => _CupertinoAddAscentScreenState(passedAscent: passedAscent);
 }
 
 class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
-  final Ascent passedAscent;
+  final Ascent? passedAscent;
 
   final TextEditingController nameController = new TextEditingController();
   final TextEditingController sectorController = new TextEditingController();
   final TextEditingController commentController = new TextEditingController();
-  DateTime currentDate = DateTime.now();
+  DateTime? currentDate = DateTime.now();
   var formatter = new DateFormat('yyyy-MM-dd');
-  var styleId = 0;
-  var grade = "6a";
+  int? styleId = 0;
+  String? grade = "6a";
   var cragId;
   var stars = 0.0;
   var cragIndex = 0;
   var gradeIndex = 0;
-  List<Crag> crags;
-  List<String> grades;
+  List<Crag>? crags;
+  List<String>? grades;
 
   _CupertinoAddAscentScreenState({this.passedAscent}) {
     if (passedAscent != null) {
-      styleId = passedAscent.style.id;
-      grade = passedAscent.route.grade;
-      cragId = passedAscent.route.crag.id;
-      nameController.text = passedAscent.route.name;
-      sectorController.text = passedAscent.route.sector;
-      currentDate = passedAscent.date;
-      commentController.text = passedAscent.comment;
-      stars = passedAscent != null && passedAscent.stars != null ? passedAscent.stars.toDouble() : 0.0;
+      styleId = passedAscent!.style!.id;
+      grade = passedAscent!.route!.grade;
+      cragId = passedAscent!.route!.crag!.id;
+      nameController.text = passedAscent!.route!.name!;
+      sectorController.text = passedAscent!.route!.sector!;
+      currentDate = passedAscent!.date;
+      commentController.text = passedAscent!.comment!;
+      stars = passedAscent != null && passedAscent!.stars != null ? passedAscent!.stars!.toDouble() : 0.0;
     }
   }
 
@@ -94,11 +93,11 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                       future: DatabaseHelper.getCrags(),
                       initialData: List.empty(),
                       builder: (context, snapshot) {
-                        if (snapshot.data == null || snapshot.data.length == 0) return Center();
+                        if (snapshot.data == null || snapshot.data!.length == 0) return Center();
                         crags = snapshot.data;
                         if (passedAscent != null) {
-                          Crag c = crags.firstWhere((element) => element.id == cragId);
-                          cragIndex = crags.indexOf(c);
+                          Crag c = crags!.firstWhere((element) => element.id == cragId);
+                          cragIndex = crags!.indexOf(c);
                         }
                         return new CupertinoPicker(
                             scrollController: FixedExtentScrollController(initialItem: cragIndex),
@@ -149,8 +148,8 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                       if (!snapshot.hasData) return Center();
                       grades = snapshot.data;
                       var fixedExtentScrollController;
-                      String c = grades.firstWhere((element) => element == grade);
-                      gradeIndex = grades.indexOf(c);
+                      String c = grades!.firstWhere((element) => element == grade);
+                      gradeIndex = grades!.indexOf(c);
                       fixedExtentScrollController = FixedExtentScrollController(initialItem: gradeIndex);
                       return new CupertinoPicker(
                           scrollController: fixedExtentScrollController,
@@ -160,7 +159,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                           onSelectedItemChanged: (value) {
                             setState(() {
                               gradeIndex = value;
-                              grade = grades[gradeIndex];
+                              grade = grades![gradeIndex];
                             });
                           });
                     },
@@ -180,7 +179,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                     width: 100,
                     height: 100,
                     child: CupertinoPicker(
-                        scrollController: FixedExtentScrollController(initialItem: styleId - 1),
+                        scrollController: FixedExtentScrollController(initialItem: styleId! - 1),
                         looping: false,
                         itemExtent: 32,
                         children: buildStyleListIOS(DatabaseHelper.styles),
@@ -203,7 +202,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                   ),
                   SizedBox(
                     width: 100,
-                    child: Text(formatter.format(currentDate)),
+                    child: Text(formatter.format(currentDate!)),
                   ),
                   CupertinoButton(
                       onPressed: () {
@@ -234,17 +233,17 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
               ),
               Row(
                 children: [
-                  SmoothStarRating(
-                    allowHalfRating: false,
-                    starCount: 3,
-                    size: 30.0,
-                    rating: stars,
-                    onRated: (double value) {
-                      setState(() {
-                        stars = value;
-                      });
-                    },
-                  ),
+                  // SmoothStarRating(
+                  //   allowHalfRating: false,
+                  //   starCount: 3,
+                  //   size: 30.0,
+                  //   rating: stars,
+                  //   onRated: (double value) {
+                  //     setState(() {
+                  //       stars = value;
+                  //     });
+                  //   },
+                  // ),
                 ],
               ),
               // buttons below
@@ -264,11 +263,8 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                   ),
                   CupertinoButton(
                     onPressed: () async {
-                      Crag crag = new Crag(id: cragId);
-                      if (cragIndex != null) {
-                        crag = crags[cragIndex];
-                      }
-                      grade = grades[this.gradeIndex];
+                      Crag crag = crags![cragIndex];
+                      grade = grades![this.gradeIndex];
                       mine.Route route = new mine.Route(
                         name: nameController.text,
                         crag: crag,
@@ -281,11 +277,11 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                           date: currentDate,
                           attempts: 1,
                           stars: stars.toInt(),
-                          style: Style(id: styleId + 1));
+                          style: Style(id: styleId! + 1));
                       if (passedAscent != null) {
-                        ascent.id = passedAscent.id;
-                        ascent.route.id = passedAscent.route.id;
-                        ascent.route.crag.id = cragId;
+                        ascent.id = passedAscent!.id;
+                        ascent.route!.id = passedAscent!.route!.id;
+                        ascent.route!.crag!.id = cragId;
                         await DatabaseHelper.updateAscent(ascent);
                       } else {
                         await DatabaseHelper.addAscent(ascent);
@@ -302,7 +298,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
   }
 
   Future selectDate(BuildContext context) async {
-    DateTime pickedDate;
+    DateTime? pickedDate;
     await showCupertinoModalPopup(
         context: context,
         builder: (_) => Container(
@@ -338,20 +334,20 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
 
   List<Widget> buildStyleListIOS(List<Style> snapshot) {
     List<Widget> list = snapshot.map((style) {
-      return Text(style.name);
+      return Text(style.name!);
     }).toList();
     return list;
   }
 
   List<Widget> buildCragListIOS(AsyncSnapshot<List> snapshot) {
-    List<Widget> list = snapshot.data.map((crag) {
+    List<Widget> list = snapshot.data!.map((crag) {
       return Text(crag.name);
     }).toList();
     return list;
   }
 
   List<Widget> buildGradeListIOS(AsyncSnapshot<List> snapshot) {
-    List<Widget> list = snapshot.data.map((value) {
+    List<Widget> list = snapshot.data!.map((value) {
       return Text(value);
     }).toList();
     return list;

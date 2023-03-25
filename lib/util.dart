@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -27,7 +27,7 @@ Widget buildMainContent<T>(BuildContext context, AsyncSnapshot<List<T>> snapshot
     padding: const EdgeInsets.all(10.0),
     itemCount: snapshot.data?.length,
     itemBuilder: (context, i) {
-      return buildRow(snapshot.data[i]);
+      return buildRow(snapshot.data![i]);
     },
   ));
 }
@@ -93,7 +93,7 @@ showAlertDialog(BuildContext context, String title, String message) {
   );
 }
 
-showMaterialDialog(BuildContext context, String title, Widget content, List<Widget> actions, double height, double width) {
+showMaterialDialog(BuildContext context, String? title, Widget content, List<Widget> actions, double height, double width) {
   if (Platform.isIOS) {
     showCupertinoDialog(
         context: context,

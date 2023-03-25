@@ -1,7 +1,6 @@
-// @dart=2.9
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 import 'ascent.dart';
 import 'crag.dart';
@@ -10,37 +9,37 @@ import 'route.dart' as mine;
 import 'style.dart';
 
 class AddAscentScreen extends StatefulWidget {
-  final Ascent passedAscent;
+  final Ascent? passedAscent;
 
-  AddAscentScreen({Key key, this.passedAscent});
+  AddAscentScreen({Key? key, this.passedAscent});
 
   @override
   _AddAscentScreenState createState() => _AddAscentScreenState(passedAscent: passedAscent);
 }
 
 class _AddAscentScreenState extends State<AddAscentScreen> {
-  final Ascent passedAscent;
+  final Ascent? passedAscent;
 
   final TextEditingController nameController = new TextEditingController();
   final TextEditingController sectorController = new TextEditingController();
   final TextEditingController commentController = new TextEditingController();
-  DateTime currentDate = DateTime.now();
+  DateTime? currentDate = DateTime.now();
   var formatter = new DateFormat('yyyy-MM-dd');
-  var styleId = 1;
-  var grade = "6a";
+  int? styleId = 1;
+  String? grade = "6a";
   var cragId;
   var stars = 0.0;
 
   _AddAscentScreenState({this.passedAscent}) {
     if (passedAscent != null) {
-      styleId = passedAscent.style.id;
-      grade = passedAscent.route.grade;
-      cragId = passedAscent.route.crag.id;
-      nameController.text = passedAscent.route.name;
-      sectorController.text = passedAscent.route.sector;
-      currentDate = passedAscent.date;
-      commentController.text = passedAscent.comment;
-      stars = passedAscent != null && passedAscent.stars != null ? passedAscent.stars.toDouble() : 0.0;
+      styleId = passedAscent!.style!.id;
+      grade = passedAscent!.route!.grade;
+      cragId = passedAscent!.route!.crag!.id;
+      nameController.text = passedAscent!.route!.name!;
+      sectorController.text = passedAscent!.route!.sector!;
+      currentDate = passedAscent!.date;
+      commentController.text = passedAscent!.comment!;
+      stars = passedAscent != null && passedAscent!.stars != null ? passedAscent!.stars!.toDouble() : 0.0;
     }
   }
 
@@ -92,7 +91,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                           value: cragId,
                           hint: Text("Select Crag"),
                           items: buildCragList(snapshot),
-                          onChanged: (value) {
+                          onChanged: (dynamic value) {
                             setState(() {
                               cragId = value;
                             });
@@ -134,7 +133,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                   return new DropdownButton(
                       value: grade,
                       items: buildGradeList(snapshot),
-                      onChanged: (value) {
+                      onChanged: (dynamic value) {
                         setState(() {
                           grade = value;
                         });
@@ -154,7 +153,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 DropdownButton(
                     value: styleId,
                     items: buildStyleList(DatabaseHelper.styles),
-                    onChanged: (value) {
+                    onChanged: (dynamic value) {
                       setState(() {
                         styleId = value;
                       });
@@ -172,7 +171,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 ),
                 SizedBox(
                   width: 100,
-                  child: Text(formatter.format(currentDate)),
+                  child: Text(formatter.format(currentDate!)),
                 ),
                 ElevatedButton(
                     onPressed: () {
@@ -203,17 +202,17 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
             ),
             Row(
               children: [
-                SmoothStarRating(
-                  allowHalfRating: false,
-                  starCount: 3,
-                  size: 30.0,
-                  rating: stars,
-                  onRated: (double value) {
-                    setState(() {
-                      stars = value;
-                    });
-                  },
-                ),
+                // SmoothStarRating(
+                //   allowHalfRating: false,
+                //   starCount: 3,
+                //   size: 30.0,
+                //   rating: stars,
+                //   onRated: (double value) {
+                //     setState(() {
+                //       stars = value;
+                //     });
+                //   },
+                // ),
               ],
             ),
             // buttons below
@@ -248,9 +247,9 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                         stars: stars.toInt(),
                         style: Style(id: styleId));
                     if (passedAscent != null) {
-                      ascent.id = passedAscent.id;
-                      ascent.route.id = passedAscent.route.id;
-                      ascent.route.crag.id = cragId;
+                      ascent.id = passedAscent!.id;
+                      ascent.route!.id = passedAscent!.route!.id;
+                      ascent.route!.crag!.id = cragId;
                       await DatabaseHelper.updateAscent(ascent);
                     } else {
                       await DatabaseHelper.addAscent(ascent);
@@ -268,7 +267,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   }
 
   List<DropdownMenuItem> buildGradeList(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem> list = snapshot.data.map((grade) {
+    List<DropdownMenuItem> list = snapshot.data!.map((grade) {
       return DropdownMenuItem<String>(
         child: Text(grade),
         value: grade,
@@ -278,7 +277,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   }
 
   List<DropdownMenuItem<int>> buildCragList(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem<int>> list = snapshot.data.map((crag) {
+    List<DropdownMenuItem<int>> list = snapshot.data!.map((crag) {
       return DropdownMenuItem<int>(
         child: Text(crag.name),
         value: crag.id,
@@ -288,7 +287,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   }
 
   Future selectDate(BuildContext context) async {
-    final DateTime pickedDate =
+    final DateTime? pickedDate =
         await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1900, 1, 1), lastDate: DateTime.now());
     if (pickedDate != null && pickedDate != currentDate)
       setState(() {
@@ -299,7 +298,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
   List<DropdownMenuItem> buildStyleList(List<Style> snapshot) {
     List<DropdownMenuItem> list = snapshot.map((style) {
       return DropdownMenuItem<int>(
-        child: Text(style.name),
+        child: Text(style.name!),
         value: style.id,
       );
     }).toList();

@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'package:ascent/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +14,9 @@ import 'database.dart';
 import 'overview.dart';
 
 class CupertinoHome extends StatefulWidget {
-  CupertinoHome({Key key, this.title}) : super(key: key);
+  CupertinoHome({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   CupertinoHomeState createState() => new CupertinoHomeState();
@@ -24,8 +24,8 @@ class CupertinoHome extends StatefulWidget {
 
 class CupertinoHomeState extends State<CupertinoHome> {
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
-  String query;
-  TextEditingController _textController;
+  String? query;
+  TextEditingController? _textController;
 
   CupertinoHomeState() {
     _textController = TextEditingController();
@@ -112,7 +112,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return CupertinoTabView(builder: (BuildContext context) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text(widget.title),
+          middle: Text(widget.title!),
           trailing: CupertinoButton(
             child: Icon(Icons.add),
             onPressed: () async {
@@ -153,7 +153,8 @@ class CupertinoHomeState extends State<CupertinoHome> {
                 if (!snapshot.hasData) {
                   return Center();
                 }
-                var len = snapshot.data.length;
+                final data = snapshot.data as List<Ascent>;
+                int len = data.length;
                 return CupertinoListTile(
                     title: Text(""),
                     leading: Column(
@@ -189,7 +190,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     return Card(
       child: CupertinoListTile(
         title: Text(
-          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
+          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         subtitle: Column(
@@ -197,14 +198,14 @@ class CupertinoHomeState extends State<CupertinoHome> {
             Row(
               children: [
                 Text(
-                  "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
+                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
                   textAlign: TextAlign.left,
                 ),
               ],
             ),
             Container(
               child: Text(
-                ascent.comment,
+                ascent.comment!,
               ),
               alignment: Alignment.topLeft,
             ),

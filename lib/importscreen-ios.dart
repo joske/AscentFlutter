@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'package:ascent/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +45,7 @@ class ImportScreen extends StatelessWidget {
   Future<void> importData(BuildContext context) async {
     showProgressDialog(context, "Importing");
     try {
-      var ascents = await CsvImporter().readFile();
+      var ascents = (await CsvImporter().readFile())!;
       if (ascents.isNotEmpty) {
         await DatabaseHelper.clear();
         for (final a in ascents) {

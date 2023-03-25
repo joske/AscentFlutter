@@ -1,13 +1,13 @@
-// @dart=2.9
+
 import 'crag.dart';
 
 class Route {
-  int id = -1;
-  final String name;
-  final String grade;
-  final Crag crag;
-  final String sector;
-  final int gradeScore;
+  int? id = -1;
+  final String? name;
+  final String? grade;
+  final Crag? crag;
+  final String? sector;
+  final int? gradeScore;
 
   Route({this.id, this.name, this.grade, this.crag, this.sector, this.gradeScore});
 
@@ -23,12 +23,12 @@ class Route {
     var map = new Map<String, dynamic>();
     map["name"] = name;
     map["grade"] = grade;
-    map["crag_id"] = crag.id;
+    map["crag_id"] = crag!.id;
     map["sector"] = sector;
     return map;
   }
 
-  static int getScore(String grade) {
+  static int getScore(String? grade) {
     return 1000;
   }
 }

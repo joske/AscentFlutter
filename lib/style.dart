@@ -1,11 +1,11 @@
-// @dart=2.9
+
 import 'package:ascent/database.dart';
 
 class Style {
-  int id;
-  String name;
-  String shortName;
-  int score;
+  int? id;
+  String? name;
+  String? shortName;
+  int? score;
 
   Style({this.id, this.name, this.score, this.shortName});
 
@@ -15,7 +15,7 @@ class Style {
         this.shortName = res["short_name"],
         this.score = res["score"];
 
-  Style.fromEightACode(String code) {
+  Style.fromEightACode(String? code) {
     var styles = DatabaseHelper.styles;
     String styleName = "Onsight";
     switch (code) {

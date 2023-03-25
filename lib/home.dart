@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'package:ascent/import.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/util.dart';
@@ -13,9 +13,9 @@ import 'database.dart';
 import 'overview.dart';
 
 class MaterialHome extends StatefulWidget {
-  MaterialHome({Key key, this.title}) : super(key: key);
+  MaterialHome({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   MaterialHomeState createState() => new MaterialHomeState();
@@ -23,9 +23,9 @@ class MaterialHome extends StatefulWidget {
 
 class MaterialHomeState extends State<MaterialHome> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  SearchBar searchBar;
+  late SearchBar searchBar;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
-  String query;
+  String? query;
 
   MaterialHomeState() {
     searchBar = new SearchBar(
@@ -46,7 +46,7 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Widget buildAppBar(BuildContext context) {
-    return AppBar(title: Text(widget.title), actions: [searchBar.getSearchAction(context)]);
+    return AppBar(title: Text(widget.title!), actions: [searchBar.getSearchAction(context)]);
   }
 
   void onSubmitted(String value) {
@@ -83,7 +83,8 @@ class MaterialHomeState extends State<MaterialHome> {
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
-                var len = snapshot != null && snapshot.data != null ? snapshot.data.length : 0;
+                final data = snapshot.data as List<Ascent>;
+                var len = data.length;
                 return ListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -167,7 +168,7 @@ class MaterialHomeState extends State<MaterialHome> {
     return Card(
       child: ListTile(
         title: Text(
-          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
+          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         subtitle: Column(
@@ -175,14 +176,14 @@ class MaterialHomeState extends State<MaterialHome> {
             Row(
               children: [
                 Text(
-                  "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
+                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
                   textAlign: TextAlign.left,
                 ),
               ],
             ),
             Container(
               child: Text(
-                ascent.comment,
+                ascent.comment!,
               ),
               alignment: Alignment.topLeft,
             ),
@@ -209,7 +210,7 @@ class MaterialHomeState extends State<MaterialHome> {
   Future<void> importData() async {
     showProgressDialog(context, "Importing");
     try {
-      var ascents = await CsvImporter().readFile();
+      var ascents = (await CsvImporter().readFile())!;
       if (ascents.isNotEmpty) {
         await DatabaseHelper.clear();
         setState(() {});

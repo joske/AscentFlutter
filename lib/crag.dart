@@ -1,8 +1,8 @@
-// @dart=2.9
+
 class Crag {
-  int id = -1;
-  String name;
-  String country;
+  int? id = -1;
+  String? name;
+  String? country;
 
   Crag({this.id, this.name, this.country});
 

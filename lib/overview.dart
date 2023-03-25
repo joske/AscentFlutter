@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'dart:io';
 
 import 'package:ascent/util.dart';
@@ -50,7 +50,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
               showCheckboxColumn: false,
               columns: const [DataColumn(label: Text("Grade")), DataColumn(label: Text("Done")), DataColumn(label: Text("Tried"))],
               rows: <DataRow>[
-                for (int i = 0; i < snapshot.data.length; i++) buildRow(snapshot.data[i]),
+                for (int i = 0; i < snapshot.data!.length; i++) buildRow(snapshot.data![i]),
               ],
             )));
       },
@@ -59,7 +59,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
 
   DataRow buildRow(Stats e) {
     return DataRow(
-        cells: [DataCell(Text(e.grade)), DataCell(Text(e.done.toString())), DataCell(Text(e.tried.toString()))],
+        cells: [DataCell(Text(e.grade!)), DataCell(Text(e.done.toString())), DataCell(Text(e.tried.toString()))],
         onSelectChanged: (value) => {
               if (Platform.isIOS)
                 {
@@ -77,7 +77,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
             });
   }
 
-  showDetail(String grade) async {
+  showDetail(String? grade) async {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     showMaterialDialog(
@@ -97,7 +97,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         width);
   }
 
-  Future<Widget> buildDetailDialog(String grade) async {
+  Future<Widget> buildDetailDialog(String? grade) async {
     return DialogBuilder.buildScrollView(context, grade);
   }
 }
@@ -105,25 +105,25 @@ class _OverviewScreenState extends State<OverviewScreen> {
 class DialogBuilder {
   static DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
-  static Widget buildScrollView(BuildContext context, String grade) {
+  static Widget buildScrollView(BuildContext context, String? grade) {
     return createScrollView(context, DatabaseHelper.getAscentsWhere("route_grade = ?", [grade]), buildDetailRow);
   }
 
   static Widget buildDetailRow(Ascent ascent) {
-    var title = new Text("${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}");
+    var title = new Text("${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}");
     var subtitle = Column(
       children: [
         Row(
           children: [
             Text(
-              "${ascent.route.crag.name}    ${ascent.route.sector}",
+              "${ascent.route!.crag!.name}    ${ascent.route!.sector}",
               textAlign: TextAlign.left,
             ),
           ],
         ),
         Container(
           child: Text(
-            ascent.comment,
+            ascent.comment!,
           ),
           alignment: Alignment.topLeft,
         ),
@@ -145,8 +145,8 @@ class DialogBuilder {
 
 //Second Page
 class FullDialogPage extends StatefulWidget {
-  String grade;
-  FullDialogPage(String grade) {
+  String? grade;
+  FullDialogPage(String? grade) {
     this.grade = grade;
   }
 
@@ -155,11 +155,11 @@ class FullDialogPage extends StatefulWidget {
 }
 
 class _FullDialogPageState extends State<FullDialogPage> with TickerProviderStateMixin {
-  String grade;
-  AnimationController _primary, _secondary;
-  Animation<double> _animationPrimary, _animationSecondary;
+  String? grade;
+  late AnimationController _primary, _secondary;
+  late Animation<double> _animationPrimary, _animationSecondary;
 
-  _FullDialogPageState(String grade) {
+  _FullDialogPageState(String? grade) {
     this.grade = grade;
   }
 

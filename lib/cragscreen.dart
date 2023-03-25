@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'dart:io';
 
 import 'package:ascent/util.dart';
@@ -41,7 +41,7 @@ class _CragScreenState extends State<CragScreen> {
 
   Widget _buildRow(Crag crag) {
     var text = new Text(
-      crag.name,
+      crag.name!,
       style: Theme.of(context).textTheme.bodyLarge,
     );
     if (Platform.isIOS) {

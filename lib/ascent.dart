@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'package:intl/intl.dart';
 
 import 'crag.dart';
@@ -6,15 +6,15 @@ import 'route.dart';
 import 'style.dart';
 
 class Ascent {
-  int id = -1;
-  Route route;
-  int attempts;
-  DateTime date;
-  int score;
-  int stars;
-  Style style;
-  String comment;
-  int eightAId;
+  int? id = -1;
+  Route? route;
+  int? attempts;
+  DateTime? date;
+  int? score;
+  int? stars;
+  Style? style;
+  String? comment;
+  int? eightAId;
 
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
@@ -38,17 +38,17 @@ class Ascent {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    if (id != null && id > 0) {
+    if (id != null && id! > 0) {
       map["_id"] = id;
     }
-    map["date"] = date.toIso8601String();
+    map["date"] = date!.toIso8601String();
     map["score"] = score;
     map["comment"] = comment;
     map["stars"] = stars;
-    map["style_id"] = style.id;
+    map["style_id"] = style!.id;
     map["attempts"] = attempts;
-    if (route.id != null) {
-      map["route_id"] = route.id;
+    if (route!.id != null) {
+      map["route_id"] = route!.id;
     }
     return map;
   }
@@ -74,21 +74,21 @@ class Ascent {
 
   String encode() {
     StringBuffer line = new StringBuffer();
-    line.write(route.name);
+    line.write(route!.name);
     line.write("\t");
-    line.write(route.grade);
+    line.write(route!.grade);
     line.write("\t");
-    line.write(route.crag.name);
+    line.write(route!.crag!.name);
     line.write("\t");
-    line.write(route.sector);
+    line.write(route!.sector);
     line.write("\t");
-    line.write(route.crag.country);
+    line.write(route!.crag!.country);
     line.write("\t");
-    line.write(style.id);
+    line.write(style!.id);
     line.write("\t");
     line.write(attempts);
     line.write("\t");
-    line.write(formatter.format(date));
+    line.write(formatter.format(date!));
     line.write("\t");
     line.write(comment);
     line.write("\t");
@@ -98,9 +98,9 @@ class Ascent {
   }
 
   Ascent.fromJson(Map<String, dynamic> res) {
-    String area = res["areaName"];
-    String cragName = res["cragName"];
-    String sectorName = res["sectorSlug"];
+    String? area = res["areaName"];
+    String? cragName = res["cragName"];
+    String? sectorName = res["sectorSlug"];
     route = Route(
         name: res["zlaggableName"],
         grade: res["difficulty"],
@@ -109,12 +109,12 @@ class Ascent {
     date = DateTime.parse(res["date"]);
     stars = res["rating"];
     comment = res["comment"];
-    String styleCode = res["type"];
+    String? styleCode = res["type"];
     style = Style.fromEightACode(styleCode);
   }
 
   @override
   String toString() {
-    return "Ascent($id ${route.name} ${route.grade} ${style.shortName} ${route.crag.name} ${route.sector} $score $stars ${formatter.format(date)} $comment";
+    return "Ascent($id ${route!.name} ${route!.grade} ${style!.shortName} ${route!.crag!.name} ${route!.sector} $score $stars ${formatter.format(date!)} $comment";
   }
 }

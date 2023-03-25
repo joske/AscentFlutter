@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'package:ascent/ascent.dart';
 import 'package:ascent/import.dart';
 import 'package:test/test.dart';
@@ -62,8 +62,8 @@ void main() {
 	}]''';
     List<Ascent> list = CsvImporter().parseEightAJson(data);
     expect(list.length, 2);
-    expect(list[0].route.name, "Too fat for tufas");
-    expect(list[1].route.name, "Toxic Climax");
+    expect(list[0].route!.name, "Too fat for tufas");
+    expect(list[1].route!.name, "Toxic Climax");
     print(list[0]);
     print(list[1]);
   });

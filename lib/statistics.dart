@@ -1,4 +1,4 @@
-// @dart=2.9
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -13,8 +13,8 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  String year = "All";
-  int cragId = 0;
+  String? year = "All";
+  int? cragId = 0;
   int numAscents = 0;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
 
@@ -45,15 +45,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 initialData: List.empty(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return Center();
-                  if (year == "All" && snapshot.data.length > 0) {
-                    year = snapshot.data[0];
+                  if (year == "All" && snapshot.data!.length > 0) {
+                    year = snapshot.data![0];
                   }
                   return new DropdownButton(
                       value: year,
                       hint: Text("Year"),
                       items: buildYears(snapshot),
-                      onChanged: (value) async {
-                        var len = (await DatabaseHelper.getAscentsForCrag(value, cragId)).length;
+                      onChanged: (dynamic value) async {
+                        var len = (await DatabaseHelper.getAscentsForCrag(value, cragId!)).length;
                         setState(() {
                           year = value;
                           numAscents = len;
@@ -71,7 +71,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       value: cragId,
                       hint: Text("Select Crag"),
                       items: buildCragList(snapshot),
-                      onChanged: (value) async {
+                      onChanged: (dynamic value) async {
                         var len = (await DatabaseHelper.getAscentsForCrag(year, value)).length;
                         setState(() {
                           cragId = value;
@@ -93,11 +93,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget buildRows(BuildContext context) {
     return FutureBuilder<List<Ascent>>(
-      future: DatabaseHelper.getAscentsForCrag(year, cragId),
+      future: DatabaseHelper.getAscentsForCrag(year, cragId!),
       initialData: List.empty(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Center();
-        numAscents = snapshot.data.length;
+        numAscents = snapshot.data!.length;
         return new Scrollbar(
             thickness: 30,
             interactive: true,
@@ -107,7 +107,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     padding: const EdgeInsets.all(10.0),
                     itemCount: snapshot.data?.length,
                     itemBuilder: (context, i) {
-                      return buildRow(snapshot.data[i]);
+                      return buildRow(snapshot.data![i]);
                     })));
       },
     );
@@ -117,7 +117,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Card(
       child: ListTile(
         title: Text(
-          "${formatter.format(ascent.date)}    ${ascent.route.grade}    ${ascent.style.name}    ${ascent.route.name}    ${ascent.score}",
+          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         subtitle: Column(
@@ -125,14 +125,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Row(
               children: [
                 Text(
-                  "${ascent.route.crag.name}    ${ascent.route.sector}    stars: ${ascent.stars}",
+                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
                   textAlign: TextAlign.left,
                 ),
               ],
             ),
             Container(
               child: Text(
-                ascent.comment,
+                ascent.comment!,
               ),
               alignment: Alignment.topLeft,
             ),
@@ -143,7 +143,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   List<DropdownMenuItem<int>> buildCragList(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem<int>> list = snapshot.data.map((crag) {
+    List<DropdownMenuItem<int>> list = snapshot.data!.map((crag) {
       return DropdownMenuItem<int>(
         child: Text(crag.name),
         value: crag.id,
@@ -154,7 +154,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   List<DropdownMenuItem<String>> buildYears(AsyncSnapshot<List> snapshot) {
-    List<DropdownMenuItem<String>> list = snapshot.data.map((year) {
+    List<DropdownMenuItem<String>> list = snapshot.data!.map((year) {
       return DropdownMenuItem<String>(
         child: Text(year),
         value: year,

@@ -1,16 +1,16 @@
-// @dart=2.9
+
 import 'package:flutter/material.dart';
 
 import 'crag.dart';
 import 'database.dart';
 
 class AddCragScreen extends StatelessWidget {
-  final Crag passedCrag;
+  final Crag? passedCrag;
 
   AddCragScreen({this.passedCrag}) {
     if (passedCrag != null) {
-      nameController.text = passedCrag.name;
-      countryController.text = passedCrag.country;
+      nameController.text = passedCrag!.name!;
+      countryController.text = passedCrag!.country!;
     }
   }
 
@@ -75,9 +75,9 @@ class AddCragScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     if (passedCrag != null) {
-                      passedCrag.name = nameController.text;
-                      passedCrag.country = countryController.text;
-                      DatabaseHelper.updateCrag(passedCrag);
+                      passedCrag!.name = nameController.text;
+                      passedCrag!.country = countryController.text;
+                      DatabaseHelper.updateCrag(passedCrag!);
                     } else {
                       Crag crag = new Crag(name: nameController.text, country: countryController.text);
                       DatabaseHelper.addCrag(crag);
