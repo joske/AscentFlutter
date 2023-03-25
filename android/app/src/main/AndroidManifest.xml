@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="be.sourcery.ascent.ascentflutter">
+    package="be.sourcery.ascent.flutter">
    <application
-        android:label="ascentflutter"
+        android:label="ascent"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,4 +1,3 @@
-
 import 'package:ascent/import.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/util.dart';
@@ -46,7 +45,9 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Widget buildAppBar(BuildContext context) {
-    return AppBar(title: Text(widget.title!), actions: [searchBar.getSearchAction(context)]);
+    return AppBar(
+        title: Text(widget.title!),
+        actions: [searchBar.getSearchAction(context)]);
   }
 
   void onSubmitted(String value) {
@@ -83,6 +84,9 @@ class MaterialHomeState extends State<MaterialHome> {
           child: FutureBuilder(
               future: ascents,
               builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center();
+                }
                 final data = snapshot.data as List<Ascent>;
                 var len = data.length;
                 return ListTile(
@@ -90,14 +94,17 @@ class MaterialHomeState extends State<MaterialHome> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [Text("Ascents: $len")],
                     ),
-                    trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      FutureBuilder(
-                          future: DatabaseHelper.getScore(),
-                          builder: (context, snapshot) {
-                            var score = snapshot.data != null ? snapshot.data : "0";
-                            return Text("Score: $score");
-                          })
-                    ]));
+                    trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FutureBuilder(
+                              future: DatabaseHelper.getScore(),
+                              builder: (context, snapshot) {
+                                var score =
+                                    snapshot.data != null ? snapshot.data : "0";
+                                return Text("Score: $score");
+                              })
+                        ]));
               }),
         ),
         Flexible(
@@ -189,7 +196,8 @@ class MaterialHomeState extends State<MaterialHome> {
             ),
           ],
         ),
-        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
+        trailing:
+            createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
       ),
     );
   }
@@ -197,7 +205,8 @@ class MaterialHomeState extends State<MaterialHome> {
   void editAscent(Ascent ascent) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddAscentScreen(passedAscent: ascent)),
+      MaterialPageRoute(
+          builder: (context) => AddAscentScreen(passedAscent: ascent)),
     );
     setState(() {});
   }

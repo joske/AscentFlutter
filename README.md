@@ -1,6 +1,6 @@
 # ascent
 
-A databaes for climbing ascents
+A database for climbing ascents
 
 Usage:
 
