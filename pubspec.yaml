@@ -18,7 +18,6 @@ dependencies:
   cupertino_icons: ^1.0.5
   file_picker: ^5.2.6
   flutter_search_bar: ^3.0.0-dev.1
-  cupertino_list_tile: ^0.2.1+1
 
 dev_dependencies:
   test: 1.24.0

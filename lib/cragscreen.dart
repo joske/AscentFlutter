@@ -1,8 +1,7 @@
-
 import 'dart:io';
 
 import 'package:ascent/util.dart';
-import 'package:cupertino_list_tile/cupertino_list_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'add_crag-ios.dart';
 import 'add_crag.dart';
@@ -47,9 +46,7 @@ class _CragScreenState extends State<CragScreen> {
     if (Platform.isIOS) {
       return Card(
         child: CupertinoListTile(
-            enabled: true,
-            title: text,
-            onTap: () => showMaterialDialog(context, "Update Crag", CupertinoAddCragScreen(passedCrag: crag), [], 200, 400)),
+            title: text, onTap: () => showMaterialDialog(context, "Update Crag", CupertinoAddCragScreen(passedCrag: crag), [], 200, 400)),
       );
     }
     return Card(

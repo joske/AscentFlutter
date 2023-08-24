@@ -2,7 +2,7 @@ import 'package:ascent/import.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart' as sb;
 import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
@@ -22,12 +22,12 @@ class MaterialHome extends StatefulWidget {
 
 class MaterialHomeState extends State<MaterialHome> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  late SearchBar searchBar;
+  late sb.SearchBar searchBar;
   DateFormat formatter = new DateFormat('yyyy-MM-dd');
   String? query;
 
   MaterialHomeState() {
-    searchBar = new SearchBar(
+    searchBar = new sb.SearchBar(
         inBar: false,
         setState: setState,
         clearOnSubmit: false,
@@ -45,9 +45,7 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Widget buildAppBar(BuildContext context) {
-    return AppBar(
-        title: Text(widget.title!),
-        actions: [searchBar.getSearchAction(context)]);
+    return AppBar(title: Text(widget.title!), actions: [searchBar.getSearchAction(context)]);
   }
 
   void onSubmitted(String value) {
@@ -94,17 +92,14 @@ class MaterialHomeState extends State<MaterialHome> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [Text("Ascents: $len")],
                     ),
-                    trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FutureBuilder(
-                              future: DatabaseHelper.getScore(),
-                              builder: (context, snapshot) {
-                                var score =
-                                    snapshot.data != null ? snapshot.data : "0";
-                                return Text("Score: $score");
-                              })
-                        ]));
+                    trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      FutureBuilder(
+                          future: DatabaseHelper.getScore(),
+                          builder: (context, snapshot) {
+                            var score = snapshot.data != null ? snapshot.data : "0";
+                            return Text("Score: $score");
+                          })
+                    ]));
               }),
         ),
         Flexible(
@@ -196,8 +191,7 @@ class MaterialHomeState extends State<MaterialHome> {
             ),
           ],
         ),
-        trailing:
-            createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
+        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
       ),
     );
   }
@@ -205,8 +199,7 @@ class MaterialHomeState extends State<MaterialHome> {
   void editAscent(Ascent ascent) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => AddAscentScreen(passedAscent: ascent)),
+      MaterialPageRoute(builder: (context) => AddAscentScreen(passedAscent: ascent)),
     );
     setState(() {});
   }
