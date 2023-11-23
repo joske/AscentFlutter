@@ -82,7 +82,6 @@ class _Top10ScreenState extends State<Top10Screen> {
   }
 
   DataRow buildRow(Ascent e) {
-    print("got ascent $e");
     String crag = e.route!.crag != null && e.route!.crag!.name != null ? e.route!.crag!.name! : "";
     String name = e.route!.name! + "\n" + crag;
     return DataRow(

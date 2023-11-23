@@ -206,7 +206,6 @@ class DatabaseHelper {
     } else {
       where = notTried;
     }
-    print("top 10 where $where");
     queryResult = await _db!.query('ascent_routes',
         orderBy: "score desc, date desc", where: where, limit: 10);
     return queryResult.map((e) => Ascent.fromMap(e)).toList();
@@ -229,7 +228,6 @@ class DatabaseHelper {
     } else {
       where = notTried;
     }
-    print("top 10 where $where");
     queryResult = await _db!.query('ascent_routes',
         columns: ["score"],
         orderBy: "score desc, date desc",
