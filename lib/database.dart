@@ -219,6 +219,10 @@ class DatabaseHelper {
     return getTop10ScoreWhere("julianday(date('now'))- julianday(date) < 365");
   }
 
+  static Future<int> getTop10ScoreYear() async {
+    return getTop10ScoreWhere("strftime('%Y', date) = strftime('%Y', date('now'))");
+  }
+
   static Future<int> getTop10ScoreWhere(String? where) async {
     await init();
     List<Map<String, Object?>> queryResult;
@@ -262,39 +266,10 @@ class DatabaseHelper {
 
   static Future<String> getScore() async {
     await init();
-    var result = await _db!.query("ascent_routes",
-        columns: ["sum(score)"],
-        where:
-            "style_id <> 7 and style_id <> 5 and julianday(date('now'))- julianday(date) < 365",
-        orderBy: "score desc, date desc",
-        limit: 10);
-    var score12m = Sqflite.firstIntValue(result);
-    if (score12m == null) {
-      score12m = 0;
-    }
-    result = await _db!.query("ascent_routes",
-        columns: ["score"],
-        where: "style_id <> 7 and style_id <> 5 and score is not null",
-        orderBy: "score desc, date desc",
-        limit: 10);
-    var allTime = 0;
-    if (result.isNotEmpty) {
-      // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
-      // strangely the above code for last 12 months DOES correctly limit to first 10 ascents :-/
-      // implement it here as a map() + fold()
-      allTime = result.map((e) => e["score"]).fold(0, (p, n) => p + (n as int));
-    }
-    result = await _db!.query("ascent_routes",
-        columns: ["score"],
-        where:
-            "strftime('%Y', date) = strftime('%Y', date('now')) and style_id <> 7 and style_id <> 5",
-        orderBy: "score desc, date desc",
-        limit: 10);
-    var year = 0;
-    // sum(score) does not seem to honor the limit, so it sums ALL scores and you get a ridiculous value
-    // strangely the above code for last 12 months DOES correctly limit to first 10 ascents :-/
-    // implement it here as a map() + fold()
-    year = result.map((e) => e["score"]).fold(0, (p, n) => p + (n as int));
+    var score12m = await getTop10ScoreLast12Months();
+    var allTime = await getTop10ScoreAllTime();
+    var year = await getTop10ScoreYear();
+
     return "$score12m - All Time: $allTime - Year: $year";
   }
 
