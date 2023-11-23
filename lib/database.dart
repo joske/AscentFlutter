@@ -189,6 +189,57 @@ class DatabaseHelper {
     return queryResult.map((e) => Ascent.fromMap(e)).toList();
   }
 
+  static Future<List<Ascent>> getTop10Last12Months() async {
+    return getTop10Where("julianday(date('now'))- julianday(date) < 365");
+  }
+
+  static Future<List<Ascent>> getTop10AllTime() async {
+    return getTop10Where(null);
+  }
+
+  static Future<List<Ascent>> getTop10Where(String? where) async {
+    await init();
+    List<Map<String, Object?>> queryResult;
+    String notTried = "style_id <> 7 and style_id <> 5";
+    if (where != null && where.isNotEmpty) {
+      where = where + " and " + notTried;
+    } else {
+      where = notTried;
+    }
+    print("top 10 where $where");
+    queryResult = await _db!.query('ascent_routes',
+        orderBy: "score desc, date desc", where: where, limit: 10);
+    return queryResult.map((e) => Ascent.fromMap(e)).toList();
+  }
+
+  static Future<int> getTop10ScoreAllTime() async {
+    return getTop10ScoreWhere(null);
+  }
+
+  static Future<int> getTop10ScoreLast12Months() async {
+    return getTop10ScoreWhere("julianday(date('now'))- julianday(date) < 365");
+  }
+
+  static Future<int> getTop10ScoreWhere(String? where) async {
+    await init();
+    List<Map<String, Object?>> queryResult;
+    String notTried = "style_id <> 7 and style_id <> 5";
+    if (where != null && where.isNotEmpty) {
+      where = where + " and " + notTried;
+    } else {
+      where = notTried;
+    }
+    print("top 10 where $where");
+    queryResult = await _db!.query('ascent_routes',
+        columns: ["score"],
+        orderBy: "score desc, date desc",
+        where: where,
+        limit: 10);
+    int score =
+        queryResult.map((e) => e["score"]).fold(0, (p, n) => p + (n as int));
+    return score;
+  }
+
   static Future<void> updateAscent(Ascent ascent) async {
     await init();
     int gradeScore = (await getGradeScore(ascent.route!.grade))!;

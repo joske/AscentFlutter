@@ -67,7 +67,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     PageRouteBuilder(
                       opaque: true,
                       pageBuilder: (context, _, __) {
-                        return FullDialogPage(e.grade);
+                        return FullDialogPage(e.grade!);
                       },
                     ),
                   )
@@ -145,21 +145,19 @@ class DialogBuilder {
 
 //Second Page
 class FullDialogPage extends StatefulWidget {
-  String? grade;
-  FullDialogPage(String? grade) {
-    this.grade = grade;
-  }
+  final String grade;
+  FullDialogPage(this.grade);
 
   @override
   _FullDialogPageState createState() => _FullDialogPageState(grade);
 }
 
 class _FullDialogPageState extends State<FullDialogPage> with TickerProviderStateMixin {
-  String? grade;
+  late String grade;
   late AnimationController _primary, _secondary;
   late Animation<double> _animationPrimary, _animationSecondary;
 
-  _FullDialogPageState(String? grade) {
+  _FullDialogPageState(String grade) {
     this.grade = grade;
   }
 

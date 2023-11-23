@@ -1,5 +1,6 @@
 import 'package:ascent/import.dart';
 import 'package:ascent/statistics.dart';
+import 'package:ascent/top10.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart' as sb;
@@ -148,6 +149,14 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          title: Text('Top 10'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await top10();
+            setState(() {});
+          },
+        ),
+        ListTile(
           title: Text('Import'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -259,6 +268,14 @@ class MaterialHomeState extends State<MaterialHome> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => StatisticsScreen()),
+    );
+    setState(() {});
+  }
+
+  top10() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Top10Screen()),
     );
     setState(() {});
   }
