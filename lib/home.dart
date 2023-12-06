@@ -84,7 +84,7 @@ class MaterialHomeState extends State<MaterialHome> {
               future: ascents,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center();
+                  return CircularProgressIndicator();
                 }
                 final data = snapshot.data as List<Ascent>;
                 var len = data.length;

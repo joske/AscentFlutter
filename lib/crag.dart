@@ -1,4 +1,3 @@
-
 class Crag {
   int? id = -1;
   String? name;

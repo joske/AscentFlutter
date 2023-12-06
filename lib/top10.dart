@@ -41,19 +41,12 @@ class _Top10ScreenState extends State<Top10Screen> {
 
   Widget buildHeader(BuildContext context) {
     return FutureBuilder<List<int>>(
-        future: Future.wait([
-          DatabaseHelper.getTop10ScoreAllTime(),
-          DatabaseHelper.getTop10ScoreLast12Months()
-        ]),
+        future: Future.wait([DatabaseHelper.getTop10ScoreAllTime(), DatabaseHelper.getTop10ScoreLast12Months()]),
         builder: (context, AsyncSnapshot<List<int>> snapshot) {
-          if (!snapshot.hasData) return Center();
+          if (!snapshot.hasData) return CircularProgressIndicator();
           int scoreAllTime = snapshot.data![0];
           int scoreLast12 = snapshot.data![1];
-          return Row(children: [
-            Text("All Time: $scoreAllTime"),
-            Spacer(),
-            Text("Last 12 Months: $scoreLast12")
-          ]);
+          return Row(children: [Text("All Time: $scoreAllTime"), Spacer(), Text("Last 12 Months: $scoreLast12")]);
         });
   }
 
@@ -62,7 +55,7 @@ class _Top10ScreenState extends State<Top10Screen> {
       future: future,
       initialData: List.empty(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Row(children: [
           DataTable(
             showCheckboxColumn: false,
@@ -72,8 +65,7 @@ class _Top10ScreenState extends State<Top10Screen> {
               DataColumn(label: Text("Name")),
             ],
             rows: <DataRow>[
-              for (int i = 0; i < snapshot.data!.length; i++)
-                buildRow(snapshot.data![i]),
+              for (int i = 0; i < snapshot.data!.length; i++) buildRow(snapshot.data![i]),
             ],
           )
         ]);

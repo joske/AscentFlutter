@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:ascent/home-ios.dart';
@@ -14,10 +13,22 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final ThemeData androidTheme = ThemeData(
+      primarySwatch: Colors.blue,
+      brightness: Brightness.light,
+    );
+
+    final ThemeData androidDarkTheme = ThemeData(
+      primarySwatch: Colors.blue,
+      brightness: Brightness.dark,
+    );
+
+    final CupertinoThemeData iosTheme = const CupertinoThemeData(brightness: Brightness.dark);
+
     if (Platform.isIOS) {
       return CupertinoApp(
         title: 'Ascents',
-        theme: const CupertinoThemeData(brightness: Brightness.light),
+        theme: iosTheme,
         home: CupertinoHome(title: 'Ascents'),
         localizationsDelegates: [
           DefaultMaterialLocalizations.delegate,
@@ -28,16 +39,8 @@ class MyApp extends StatelessWidget {
     } else {
       return MaterialApp(
         title: 'Ascents',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.light,
-        ),
-        darkTheme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.dark,
-          
-        ),
-        themeMode: ThemeMode.system,
+        theme: androidTheme,
+        darkTheme: androidDarkTheme,
         home: MaterialHome(title: 'Ascents'),
       );
     }

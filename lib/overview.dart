@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:ascent/util.dart';
@@ -41,7 +40,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       future: DatabaseHelper.getStats(year, cragId),
       initialData: List.empty(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center();
+        if (!snapshot.hasData) CircularProgressIndicator();
 
         return SingleChildScrollView(
             scrollDirection: Axis.vertical,

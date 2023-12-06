@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +92,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                       future: DatabaseHelper.getCrags(),
                       initialData: List.empty(),
                       builder: (context, snapshot) {
-                        if (snapshot.data == null || snapshot.data!.length == 0) return Center();
+                        if (snapshot.data == null || snapshot.data!.length == 0) return CircularProgressIndicator();
                         crags = snapshot.data;
                         if (passedAscent != null) {
                           Crag c = crags!.firstWhere((element) => element.id == cragId);
@@ -145,7 +144,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                   child: FutureBuilder<List<String>>(
                     future: DatabaseHelper.getGrades(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) return Center();
+                      if (!snapshot.hasData) CircularProgressIndicator();
                       grades = snapshot.data;
                       var fixedExtentScrollController;
                       String c = grades!.firstWhere((element) => element == grade);

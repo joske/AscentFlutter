@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -9,7 +8,7 @@ Widget createScrollView<T>(BuildContext context, Future<List<T>> future, Widget 
     future: future,
     initialData: List.empty(),
     builder: (context, snapshot) {
-      if (!snapshot.hasData) return Center();
+      if (!snapshot.hasData) return CircularProgressIndicator();
 
       return Scrollbar(
         child: buildMainContent(context, snapshot, buildRow),

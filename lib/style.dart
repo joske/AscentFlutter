@@ -1,4 +1,3 @@
-
 import 'package:ascent/database.dart';
 
 class Style {

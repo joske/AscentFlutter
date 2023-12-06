@@ -97,8 +97,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
           trailing: CupertinoButton(
             child: Icon(Icons.add),
             onPressed: () async {
-              await showMaterialDialog(
-                  context, "Add Crag", CupertinoAddCragScreen(), [], 200, 400);
+              await showMaterialDialog(context, "Add Crag", CupertinoAddCragScreen(), [], 200, 400);
               setState(() {});
             },
           ),
@@ -118,8 +117,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => CupertinoAddAscentScreen()),
+                MaterialPageRoute(builder: (context) => CupertinoAddAscentScreen()),
               );
               setState(() {});
             },
@@ -131,7 +129,6 @@ class CupertinoHomeState extends State<CupertinoHome> {
   }
 
   Widget buildBody(BuildContext context) {
-    Future<List<Ascent>> ascents = DatabaseHelper.getAscents(query);
     return Column(
       children: [
         Container(
@@ -149,10 +146,10 @@ class CupertinoHomeState extends State<CupertinoHome> {
         Container(
           color: Colors.grey[200],
           child: FutureBuilder(
-            future: ascents,
+            future: DatabaseHelper.getAscents(query),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return Center();
+                return CircularProgressIndicator();
               }
               final data = snapshot.data as List<Ascent>;
               int len = data.length;
@@ -176,7 +173,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
           ),
         ),
         Flexible(
-          child: createScrollView(context, ascents, _buildRow),
+          child: createScrollView(context, DatabaseHelper.getAscents(query), _buildRow),
         )
       ],
     );
@@ -207,8 +204,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
             ),
           ],
         ),
-        trailing:
-            createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
+        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
       ),
     );
   }
@@ -216,8 +212,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
   void editAscent(Ascent ascent) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
-          builder: (context) => CupertinoAddAscentScreen(passedAscent: ascent)),
+      CupertinoPageRoute(builder: (context) => CupertinoAddAscentScreen(passedAscent: ascent)),
     );
     setState(() {});
   }
@@ -240,10 +235,8 @@ class CupertinoHomeState extends State<CupertinoHome> {
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: "Crags"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.sum), label: "Summary"),
-      BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
-      BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.floppy_disk), label: "Import/Export"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.floppy_disk), label: "Import/Export"),
     ];
   }
 }

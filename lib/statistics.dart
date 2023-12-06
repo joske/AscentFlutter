@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -44,7 +43,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 future: DatabaseHelper.getYearsWithAscents(),
                 initialData: List.empty(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return Center();
+                  if (!snapshot.hasData) return CircularProgressIndicator();
                   if (year == "All" && snapshot.data!.length > 0) {
                     year = snapshot.data![0];
                   }
@@ -66,7 +65,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 future: DatabaseHelper.getCrags(),
                 initialData: List.empty(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return Center();
+                  if (!snapshot.hasData) CircularProgressIndicator();
                   return new DropdownButton(
                       value: cragId,
                       hint: Text("Select Crag"),
@@ -96,7 +95,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       future: DatabaseHelper.getAscentsForCrag(year, cragId!),
       initialData: List.empty(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center();
+        if (!snapshot.hasData) CircularProgressIndicator();
         numAscents = snapshot.data!.length;
         return new Scrollbar(
             thickness: 30,

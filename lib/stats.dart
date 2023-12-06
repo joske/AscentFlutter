@@ -1,4 +1,3 @@
-
 class Stats {
   String? grade;
   int? done;

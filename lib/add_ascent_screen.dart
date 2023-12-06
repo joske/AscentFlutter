@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -86,7 +85,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     future: DatabaseHelper.getCrags(),
                     initialData: List.empty(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) return Center();
+                      if (!snapshot.hasData) return CircularProgressIndicator();
                       return new DropdownButton(
                           value: cragId,
                           hint: Text("Select Crag"),
@@ -129,7 +128,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
               FutureBuilder<List>(
                 future: DatabaseHelper.getGrades(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return Center();
+                  if (!snapshot.hasData) return CircularProgressIndicator();
                   return new DropdownButton(
                       value: grade,
                       items: buildGradeList(snapshot),
