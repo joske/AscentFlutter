@@ -143,7 +143,7 @@ class DatabaseHelper {
     List<Object>? args;
     if (routeName != null) {
       where = "route_name like ?";
-      args = [routeName + "%"];
+      args = ["%" + routeName + "%"];
     }
     return getAscentsWhere(where, args);
   }
