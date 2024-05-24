@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import 'crag.dart';
+import 'model/crag.dart';
 import 'database.dart';
 
 class CupertinoAddCragScreen extends StatelessWidget {

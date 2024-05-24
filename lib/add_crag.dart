@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'crag.dart';
+import 'model/crag.dart';
 import 'database.dart';
 
 class AddCragScreen extends StatelessWidget {

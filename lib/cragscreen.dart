@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'add_crag-ios.dart';
 import 'add_crag.dart';
-import 'crag.dart';
+import 'model/crag.dart';
 import 'database.dart';
 
 class CragScreen extends StatefulWidget {

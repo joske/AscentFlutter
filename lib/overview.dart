@@ -5,9 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'ascent.dart';
+import 'model/ascent.dart';
 import 'database.dart';
-import 'stats.dart';
+import 'model/stats.dart';
 
 class OverviewScreen extends StatefulWidget {
   @override

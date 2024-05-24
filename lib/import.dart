@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'ascent.dart';
+import 'model/ascent.dart';
 
 class CsvImporter {
   Future<List<Ascent>?> readFile() async {

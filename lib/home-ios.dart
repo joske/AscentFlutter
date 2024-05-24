@@ -8,7 +8,7 @@ import 'add_crag-ios.dart';
 import 'cragscreen.dart';
 import 'importscreen-ios.dart';
 import 'util.dart';
-import 'ascent.dart';
+import 'model/ascent.dart';
 import 'database.dart';
 import 'overview.dart';
 

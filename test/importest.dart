@@ -1,5 +1,5 @@
 
-import 'package:ascent/ascent.dart';
+import 'package:ascent/model/ascent.dart';
 import 'package:ascent/import.dart';
 import 'package:test/test.dart';
 

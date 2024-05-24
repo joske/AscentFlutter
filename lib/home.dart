@@ -1,4 +1,5 @@
 import 'package:ascent/import.dart';
+import 'package:ascent/pyramid.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/top10.dart';
 import 'package:ascent/util.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_search_bar/flutter_search_bar.dart' as sb;
 import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
-import 'ascent.dart';
+import 'model/ascent.dart';
 import 'cragscreen.dart';
 import 'database.dart';
 import 'overview.dart';
@@ -46,7 +47,9 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Widget buildAppBar(BuildContext context) {
-    return AppBar(title: Text(widget.title!), actions: [searchBar.getSearchAction(context)]);
+    return AppBar(
+        title: Text(widget.title!),
+        actions: [searchBar.getSearchAction(context)]);
   }
 
   void onSubmitted(String value) {
@@ -93,14 +96,17 @@ class MaterialHomeState extends State<MaterialHome> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [Text("Ascents: $len")],
                     ),
-                    trailing: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      FutureBuilder(
-                          future: DatabaseHelper.getScore(),
-                          builder: (context, snapshot) {
-                            var score = snapshot.data != null ? snapshot.data : "0";
-                            return Text("Score: $score");
-                          })
-                    ]));
+                    trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FutureBuilder(
+                              future: DatabaseHelper.getScore(),
+                              builder: (context, snapshot) {
+                                var score =
+                                    snapshot.data != null ? snapshot.data : "0";
+                                return Text("Score: $score");
+                              })
+                        ]));
               }),
         ),
         Flexible(
@@ -157,6 +163,14 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          title: Text('Grade Pyramid'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await pyramid();
+            setState(() {});
+          },
+        ),
+        ListTile(
           title: Text('Import'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -200,7 +214,8 @@ class MaterialHomeState extends State<MaterialHome> {
             ),
           ],
         ),
-        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
+        trailing:
+            createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
       ),
     );
   }
@@ -208,7 +223,8 @@ class MaterialHomeState extends State<MaterialHome> {
   void editAscent(Ascent ascent) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddAscentScreen(passedAscent: ascent)),
+      MaterialPageRoute(
+          builder: (context) => AddAscentScreen(passedAscent: ascent)),
     );
     setState(() {});
   }
@@ -276,6 +292,14 @@ class MaterialHomeState extends State<MaterialHome> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Top10Screen()),
+    );
+    setState(() {});
+  }
+
+  pyramid() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PyramidScreen()),
     );
     setState(() {});
   }

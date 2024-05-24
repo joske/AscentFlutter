@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ascent/ascent.dart';
+import 'package:ascent/model/ascent.dart';
 import 'package:ascent/database.dart';
 import 'package:flutter/material.dart';
 

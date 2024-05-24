@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'ascent.dart';
+import 'model/ascent.dart';
 import 'database.dart';
 
 class StatisticsScreen extends StatefulWidget {

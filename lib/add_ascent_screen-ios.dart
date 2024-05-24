@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'ascent.dart';
-import 'crag.dart';
+import 'model/ascent.dart';
+import 'model/crag.dart';
 import 'database.dart';
-import 'route.dart' as mine;
-import 'style.dart';
+import 'model/route.dart' as mine;
+import 'model/style.dart';
 
 class CupertinoAddAscentScreen extends StatefulWidget {
   final Ascent? passedAscent;
