@@ -257,17 +257,17 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Future<void> exportData() async {
-    showProgressDialog(context, "Importing");
+    showProgressDialog(context, "Exporting");
     try {
       var ascents = await DatabaseHelper.getAscents(null);
-      CsvImporter().writeFile(ascents);
+      await CsvImporter().writeFile(ascents);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Exported ${ascents.length} ascents"),
       ));
     } catch (e) {
-      print("failed to import $e");
+      print("failed to export $e");
       Navigator.pop(context);
-      showAlertDialog(context, "Error", "Failed to Import data");
+      showAlertDialog(context, "Error", "Failed to export data");
     }
     Navigator.pop(context);
   }

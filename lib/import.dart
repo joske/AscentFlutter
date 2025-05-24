@@ -25,16 +25,23 @@ class CsvImporter {
   }
 
   Future<void> writeFile(List<Ascent> ascents) async {
-    String? directory = await FilePicker.platform.getDirectoryPath();
+    try {
+      String? directory = await FilePicker.platform.getDirectoryPath();
 
-    if (directory != null) {
-      File file = File(directory + "/ascent-export.csv");
-      print("exporting to $file");
-      StringBuffer buf = StringBuffer();
-      for (Ascent a in ascents) {
-        buf.write(a.encode());
+      if (directory != null) {
+        File file = File(directory + "/ascent-export.csv");
+        print("exporting to $file");
+        StringBuffer buf = StringBuffer();
+        for (Ascent a in ascents) {
+          buf.write(a.encode());
+        }
+        await file.writeAsString(buf.toString());
+      } else {
+        throw Exception("No directory selected for export.");
       }
-      file.writeAsString(buf.toString());
+    } catch (e, st) {
+      print("❌ Export failed: $e\n$st");
+      rethrow;
     }
   }
 
