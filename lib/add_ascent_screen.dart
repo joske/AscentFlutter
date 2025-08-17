@@ -48,7 +48,8 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
       appBar: AppBar(
         title: passedAscent != null ? Text("Edit Ascent") : Text("Add Ascent"),
       ),
-      body: Container(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
