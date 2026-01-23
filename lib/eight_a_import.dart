@@ -36,6 +36,11 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageFinished: _onPageFinished,
+          onUrlChange: (change) {
+            if (change.url != null) {
+              _extractUserSlug(change.url!);
+            }
+          },
         ),
       )
       ..addJavaScriptChannel(
@@ -45,36 +50,46 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       ..loadRequest(Uri.parse('https://www.8a.nu/'));
   }
 
-  void _onJavaScriptMessage(JavaScriptMessage message) {
+  List<Ascent> _fetchedAscents = [];
+  bool _stopFetching = false;
+
+  void _onJavaScriptMessage(JavaScriptMessage message) async {
     try {
       final data = jsonDecode(message.message);
-      if (data['type'] == 'ascents') {
+      if (data['type'] == 'page') {
         final ascentsJson = data['data']['ascents'] as List;
-        final ascents = ascentsJson.map((item) => Ascent.fromJson(item)).toList();
+        final pageAscents = ascentsJson.map((item) => Ascent.fromJson(item)).toList();
 
-        // Check for duplicates within the fetched data
-        final seen = <String>{};
-        int dupsInFetch = 0;
-        for (final a in ascents) {
-          final key = '${a.route?.name}|${a.date?.toIso8601String().substring(0,10)}|${a.route?.grade}';
-          if (seen.contains(key)) {
-            dupsInFetch++;
-          } else {
-            seen.add(key);
+        // Check if we should stop (all ascents on this page already exist)
+        int existingCount = 0;
+        for (final ascent in pageAscents) {
+          bool exists = false;
+          if (ascent.eightAId != null) {
+            exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!);
           }
+          if (!exists && ascent.route?.name != null && ascent.date != null && ascent.route?.grade != null) {
+            final dateStr = ascent.date!.toIso8601String().substring(0, 10);
+            exists = await DatabaseHelper.ascentExists(ascent.route!.name!, dateStr, ascent.route!.grade!);
+          }
+          if (exists) existingCount++;
         }
 
+        _fetchedAscents.addAll(pageAscents);
+
+        // Stop if all ascents on this page exist (we've caught up)
+        if (pageAscents.isNotEmpty && existingCount == pageAscents.length) {
+          _stopFetching = true;
+        }
+
+        // Tell JS whether to continue
+        await _controller.runJavaScript('window.continueSync = ${!_stopFetching};');
+
+      } else if (data['type'] == 'done') {
         setState(() {
-          _ascents = ascents;
+          _ascents = _fetchedAscents;
           _isLoading = false;
           _showWebView = false;
         });
-
-        if (dupsInFetch > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Note: $dupsInFetch duplicates within 8a.nu data')),
-          );
-        }
       } else if (data['type'] == 'error') {
         setState(() {
           _error = data['message'] ?? 'Failed to fetch ascents';
@@ -89,29 +104,60 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     }
   }
 
+  void _extractUserSlug(String url) {
+    final slugMatch = RegExp(r'/user/([^/]+)').firstMatch(url);
+    if (slugMatch != null) {
+      final slug = slugMatch.group(1);
+      if (slug != null && slug != 'login' && slug != _userSlug) {
+        setState(() {
+          _userSlug = slug;
+        });
+      }
+    }
+  }
+
   Future<void> _onPageFinished(String url) async {
-    // Check if logged in by looking for user menu elements
+    // Check if logged in by looking for logout or account elements
     final result = await _controller.runJavaScriptReturningResult(
-      'document.querySelector("[data-testid=\\"user-menu\\"]") !== null || document.querySelector(".user-menu") !== null || document.querySelector("a[href*=\\"/user/\\"]") !== null'
+      'document.querySelector("a[href*=\\"logout\\"]") !== null || document.querySelector("button[aria-label*=\\"account\\"]") !== null || document.querySelector("[data-testid=\\"user-avatar\\"]") !== null || document.body.innerHTML.includes("Sign out")'
     );
 
     final loggedIn = result.toString() == 'true';
+    final wasLoggedIn = _isLoggedIn;
     if (loggedIn != _isLoggedIn) {
       setState(() {
         _isLoggedIn = loggedIn;
       });
     }
 
-    // Extract user slug from URL
-    final slugMatch = RegExp(r'/user/([^/]+)').firstMatch(url);
-    if (slugMatch != null) {
-      final slug = slugMatch.group(1);
-      if (slug != null && slug != _userSlug && slug != 'login') {
-        setState(() {
-          _userSlug = slug;
-        });
+    _extractUserSlug(url);
+
+    // Auto-navigate to profile after login
+    if (loggedIn && !wasLoggedIn && _userSlug == null) {
+      // Find the user's profile link and navigate there
+      final profileUrl = await _controller.runJavaScriptReturningResult(
+        '(function() { var link = document.querySelector("a[href*=\\"/user/\\"][href*=\\"sportclimbing\\"]") || document.querySelector("a[href*=\\"/user/\\"]"); return link ? link.href : ""; })()'
+      );
+      final urlStr = profileUrl.toString().replaceAll('"', '');
+      if (urlStr.isNotEmpty && urlStr.contains('/user/')) {
+        _controller.loadRequest(Uri.parse(urlStr));
       }
     }
+  }
+
+  Future<void> _onFetchPressed() async {
+    // Try to get user slug from current URL
+    final currentUrl = await _controller.currentUrl();
+    if (currentUrl != null) {
+      final slugMatch = RegExp(r'/user/([^/]+)').firstMatch(currentUrl);
+      if (slugMatch != null) {
+        final slug = slugMatch.group(1);
+        if (slug != null && slug != 'login') {
+          _userSlug = slug;
+        }
+      }
+    }
+    await _fetchAscents();
   }
 
   Future<void> _fetchAscents() async {
@@ -127,15 +173,17 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       _error = null;
     });
 
+    _fetchedAscents = [];
+    _stopFetching = false;
+
     // Use JavaScript to fetch from within the WebView (cookies are automatically included)
     final js = '''
       (async function() {
         try {
-          let allAscents = [];
+          window.continueSync = true;
           let pageIndex = 0;
-          let hasMore = true;
 
-          while (hasMore) {
+          while (window.continueSync) {
             const url = 'https://www.8a.nu/api/unification/ascent/v1/web/users/$_userSlug/ascents?category=sportclimbing&pageIndex=' + pageIndex + '&pageSize=50&sortField=date_desc&timeFilter=0&gradeFilter=0&includeProjects=true&showRepeats=true&showDuplicates=false';
             const response = await fetch(url);
             if (!response.ok) {
@@ -143,17 +191,20 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
               return;
             }
             const data = await response.json();
-            console.log('Page ' + pageIndex + ': got ' + data.ascents.length + ' ascents, total so far: ' + (allAscents.length + data.ascents.length));
 
             if (data.ascents.length === 0) {
-              hasMore = false;
-            } else {
-              allAscents = allAscents.concat(data.ascents);
-              pageIndex++;
+              break;
             }
+
+            // Send page to Flutter and wait for decision
+            FlutterChannel.postMessage(JSON.stringify({type: 'page', data: {ascents: data.ascents, pageIndex: pageIndex}}));
+
+            // Wait a bit for Flutter to process and set continueSync
+            await new Promise(r => setTimeout(r, 100));
+            pageIndex++;
           }
 
-          FlutterChannel.postMessage(JSON.stringify({type: 'ascents', data: {ascents: allAscents}}));
+          FlutterChannel.postMessage(JSON.stringify({type: 'done'}));
         } catch (e) {
           FlutterChannel.postMessage(JSON.stringify({type: 'error', message: e.toString()}));
         }
@@ -231,9 +282,9 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       appBar: AppBar(
         title: const Text('Sync with 8a.nu'),
         actions: [
-          if (_userSlug != null && _showWebView)
+          if (_showWebView && _userSlug != null)
             TextButton(
-              onPressed: _fetchAscents,
+              onPressed: _onFetchPressed,
               child: const Text('Fetch', style: TextStyle(color: Colors.white)),
             ),
         ],
