@@ -18,6 +18,8 @@ dependencies:
       url: https://github.com/JulienDev/flutter-search-bar
       ref: master
   fl_chart: ^1.0.0
+  http: ^1.3.0
+  webview_flutter: ^4.13.0
 dev_dependencies:
   test: ^1.26.2
 flutter:

@@ -99,17 +99,27 @@ class Ascent {
   Ascent.fromJson(Map<String, dynamic> res) {
     String? area = res["areaName"];
     String? cragName = res["cragName"];
-    String? sectorName = res["sectorSlug"];
+    String? sectorName = res["sectorName"];
+    eightAId = res["ascentId"];
     route = Route(
         name: res["zlaggableName"],
         grade: res["difficulty"],
         sector: area != null ? cragName : sectorName,
-        crag: Crag(name: area != null ? area : cragName, country: res["countrySlug"]));
+        crag: Crag(name: area != null ? area : cragName, country: res["countryName"]));
     date = DateTime.parse(res["date"]);
     stars = res["rating"];
     comment = res["comment"];
     String? styleCode = res["type"];
-    style = Style.fromEightACode(styleCode);
+    var projectVal = res["project"];
+    bool isProject = projectVal == true || projectVal == "true";
+    style = Style.fromEightACode(styleCode, isProject: isProject);
+    // Second go = redpoint on 2nd attempt
+    var secondGo = res["secondGo"];
+    if (secondGo == true || secondGo == "true") {
+      attempts = 2;
+    } else {
+      attempts = 1;
+    }
   }
 
   @override

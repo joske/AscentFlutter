@@ -98,16 +98,18 @@ class AscentCard extends StatelessWidget {
         StarRating(stars: ascent.stars ?? 0),
         const Spacer(),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(4),
+            color: Colors.blue[50],
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             '${ascent.score ?? 0}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue[700],
+              fontSize: 14,
+            ),
           ),
         ),
       ],

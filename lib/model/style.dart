@@ -14,21 +14,33 @@ class Style {
         this.shortName = res["short_name"],
         this.score = res["score"];
 
-  Style.fromEightACode(String? code) {
+  Style.fromEightACode(String? code, {bool isProject = false}) {
     var styles = DatabaseHelper.styles;
-    String styleName = "Onsight";
-    switch (code) {
-      case "fl":
-        styleName = "Flash";
-        break;
-      case "rp":
-        styleName = "Redpoint";
-        break;
-      case "tr":
-        styleName = "Toprope";
-        break;
+    int styleId;
+    if (isProject || code == null || code.isEmpty) {
+      styleId = 7; // Tried/Project
+    } else {
+      switch (code) {
+        case "os":
+          styleId = 1; // OnSight
+          break;
+        case "f":
+        case "fl":
+          styleId = 2; // Flash
+          break;
+        case "rp":
+          styleId = 3; // Redpoint
+          break;
+        case "tr":
+        case "tp":
+          styleId = 4; // Toprope
+          break;
+        default:
+          styleId = 7; // Unknown = Tried
+          break;
+      }
     }
-    var s = styles.firstWhere((element) => element.name == styleName);
+    var s = styles.firstWhere((element) => element.id == styleId);
     id = s.id;
     name = s.name;
     shortName = s.shortName;

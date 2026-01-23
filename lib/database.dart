@@ -322,7 +322,8 @@ class DatabaseHelper {
   static int calculateScore(
       int attempts, int style, int gradeScore, int styleScore) {
     int totalScore = gradeScore + styleScore;
-    if (style == 2 && attempts == 2) {
+    // +2 bonus for second go (Redpoint on 2nd attempt)
+    if (style == 3 && attempts == 2) {
       totalScore += 2;
     }
     return totalScore;
@@ -373,6 +374,69 @@ class DatabaseHelper {
     await _db!.rawDelete("delete from routes");
     await _db!.rawDelete("delete from projects");
     await _db!.rawDelete("delete from ascents");
+  }
+
+  static Future<bool> ascentExistsByEightAId(int eightAId) async {
+    await init();
+    final result = await _db!.query(
+      'ascents',
+      where: 'eighta_id = ?',
+      whereArgs: [eightAId.toString()],
+    );
+    return result.isNotEmpty;
+  }
+
+  static String _normalize(String s) {
+    const accents = 'àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝ';
+    const normal  = 'aaaaaaaceeeeiiiinooooooouuuuyyAAAAAAACEEEEIIIINOOOOOOUUUUY';
+    var result = s.toLowerCase();
+    for (int i = 0; i < accents.length; i++) {
+      result = result.replaceAll(accents[i], normal[i]);
+    }
+    return result;
+  }
+
+  static Future<bool> ascentExists(String routeName, String date, String grade) async {
+    await init();
+    final normalizedName = _normalize(routeName);
+    final result = await _db!.rawQuery(
+      'SELECT route_name FROM ascent_routes WHERE date LIKE ? AND route_grade = ?',
+      ['$date%', grade],
+    );
+    return result.any((row) => _normalize(row['route_name'] as String) == normalizedName);
+  }
+
+  static Future<bool> updateEightAIdIfMissing(String routeName, String date, String grade, int eightAId) async {
+    await init();
+    final normalizedName = _normalize(routeName);
+    final result = await _db!.rawQuery(
+      'SELECT _id, eighta_id, route_name FROM ascent_routes WHERE date LIKE ? AND route_grade = ?',
+      ['$date%', grade],
+    );
+    for (final row in result) {
+      if (_normalize(row['route_name'] as String) == normalizedName && row['eighta_id'] == null) {
+        final ascentId = row['_id'] as int;
+        await _db!.update('ascents', {'eighta_id': eightAId.toString()}, where: '_id = ?', whereArgs: [ascentId]);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static Future<int> createAscent(Ascent ascent) async {
+    await init();
+    int gradeScore = (await getGradeScore(ascent.route!.grade)) ?? 0;
+    int styleScore = (await getStyleScore(ascent.style!.id)) ?? 0;
+    ascent.score = calculateScore(ascent.attempts ?? 1, ascent.style!.id!, gradeScore, styleScore);
+    await _addRoute(ascent);
+    var map = ascent.toMap();
+    map['route_id'] = ascent.route!.id;
+    if (ascent.eightAId != null) {
+      map['eighta_id'] = ascent.eightAId.toString();
+    }
+    int id = await _db!.insert('ascents', map);
+    ascent.id = id;
+    return id;
   }
 
   static List<Style> createStyleList() {

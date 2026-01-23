@@ -1,3 +1,4 @@
+import 'package:ascent/eight_a_import.dart';
 import 'package:ascent/import.dart';
 import 'package:ascent/pyramid.dart';
 import 'package:ascent/statistics.dart';
@@ -225,10 +226,19 @@ class MaterialHomeState extends State<MaterialHome> {
         ),
         ListTile(
           leading: Icon(Icons.file_download, color: Colors.green[600]),
-          title: Text('Import'),
+          title: Text('Import CSV'),
           onTap: () async {
             Navigator.of(context).pop();
             await importData();
+            setState(() {});
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.sync, color: Colors.blue[600]),
+          title: Text('Sync with 8a.nu'),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await import8aNu();
             setState(() {});
           },
         ),
@@ -331,6 +341,14 @@ class MaterialHomeState extends State<MaterialHome> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PyramidScreen()),
+    );
+    setState(() {});
+  }
+
+  import8aNu() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const EightAImportScreen()),
     );
     setState(() {});
   }
