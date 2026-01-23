@@ -252,6 +252,7 @@ class MaterialHomeState extends State<MaterialHome> {
       print("failed to import $e");
       Navigator.pop(context);
       showAlertDialog(context, "Error", "Failed to Import data");
+      return;
     }
     Navigator.pop(context);
   }
@@ -268,6 +269,7 @@ class MaterialHomeState extends State<MaterialHome> {
       print("failed to export $e");
       Navigator.pop(context);
       showAlertDialog(context, "Error", "Failed to export data");
+      return;
     }
     Navigator.pop(context);
   }
