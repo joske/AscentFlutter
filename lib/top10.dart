@@ -74,12 +74,12 @@ class _Top10ScreenState extends State<Top10Screen> {
   }
 
   DataRow buildRow(Ascent e) {
-    String crag = e.route!.crag != null && e.route!.crag!.name != null ? e.route!.crag!.name! : "";
-    String name = e.route!.name! + "\n" + crag;
+    String crag = e.route?.crag?.name ?? "";
+    String name = "${e.route?.name ?? ''}\n$crag";
     return DataRow(
       cells: [
-        DataCell(Text(e.score!.toString())),
-        DataCell(Text(e.route!.grade!)),
+        DataCell(Text(e.score?.toString() ?? '0')),
+        DataCell(Text(e.route?.grade ?? '')),
         DataCell(Text(name)),
       ],
     );
