@@ -65,7 +65,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 future: DatabaseHelper.getCrags(),
                 initialData: List.empty(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) CircularProgressIndicator();
+                  if (!snapshot.hasData) return CircularProgressIndicator();
                   return new DropdownButton(
                       value: cragId,
                       hint: Text("Select Crag"),
@@ -95,7 +95,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       future: DatabaseHelper.getAscentsForCrag(year, cragId!),
       initialData: List.empty(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) CircularProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         numAscents = snapshot.data!.length;
         return new Scrollbar(
             thickness: 30,
