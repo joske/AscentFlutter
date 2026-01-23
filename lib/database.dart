@@ -26,7 +26,7 @@ class DatabaseHelper {
       String _path = p.join(databasesPath, 'ascent.db');
       _db = await openDatabase(_path, version: _version, onCreate: onCreate);
     } catch (ex) {
-      print(ex);
+      // Database initialization failed
     }
   }
 
@@ -38,9 +38,6 @@ class DatabaseHelper {
       cragId = await getCrag(crag.name, crag.country);
       if (cragId == null) {
         cragId = await addCrag(crag);
-      } else {
-        print(
-            "got existing crag ('${crag.name}', '${crag.country}') with id $cragId");
       }
     } else {
       // crag id but no name? probably import scenario
@@ -49,8 +46,6 @@ class DatabaseHelper {
         if (list.isNotEmpty) {
           crag.name = list[0].name;
           crag.country = list[0].country;
-          print(
-              "got existing crag ('${crag.name}', '${crag.country}') with id $cragId");
         }
       }
     }
@@ -58,7 +53,6 @@ class DatabaseHelper {
     var map = ascent.route!.toMap();
     map.putIfAbsent("crag_id", () => cragId);
     int id = await _db!.insert("routes", map);
-    print("inserted route ${ascent.route!.name} at id $id");
     ascent.route!.id = id;
     return id;
   }
@@ -76,7 +70,6 @@ class DatabaseHelper {
     var map = ascent.toMap();
     map.putIfAbsent("route_id", () => ascent.route!.id);
     id = await _db!.insert("ascents", map);
-    print("inserted ascent ${ascent.route!.name} at id $id");
     ascent.id = id;
     return id;
   }
@@ -84,8 +77,6 @@ class DatabaseHelper {
   static Future<int> addCrag(Crag crag) async {
     await init();
     int id = await _db!.insert("crag", crag.toMap());
-    print("inserted crag ('${crag.name}', '${crag.country}') at id " +
-        id.toString());
     crag.id = id;
     return id;
   }
@@ -94,8 +85,6 @@ class DatabaseHelper {
     await init();
     var id = await _db!
         .update("crag", crag.toMap(), where: '_id = ?', whereArgs: [crag.id]);
-    print("updated crag ('${crag.name}', '${crag.country}') at id " +
-        id.toString());
     return id;
   }
 
@@ -119,15 +108,6 @@ class DatabaseHelper {
         await _db!.rawQuery('select * from crag where _id = ? ', [id]);
     return queryResult.map((e) => Crag.fromMap(e)).toList();
   }
-
-  // static Future<int?> getRoute(String name, String grade, int cragId) async {
-  //   await init();
-  //   if (cragId == null) {
-  //     return Sqflite.firstIntValue(await _db!.rawQuery('select _id from routes where name = ? and grade = ?', [name, grade]));
-  //   } else {
-  //     return Sqflite.firstIntValue(await _db!.rawQuery('select _id from routes where name = ? and grade = ? and crag_id = ?', [name, grade, cragId]));
-  //   }
-  // }
 
   static Future<List<String>> getGrades() async {
     await init();
@@ -154,7 +134,7 @@ class DatabaseHelper {
     List<Map<String, Object?>> res = await _db!
         .query('ascent_routes', columns: ["date"], orderBy: "date ASC");
     DateTime firstYear = DateTime.parse(res.first["date"] as String);
-    int numYears = new DateTime.now().year - firstYear.year + 1;
+    int numYears = DateTime.now().year - firstYear.year + 1;
     var list = List.generate(numYears, (i) => (firstYear.year + i).toString());
     list.insert(0, "All");
     return list;
@@ -210,7 +190,7 @@ class DatabaseHelper {
       } else {
         if (grade != currentGrade) {
           Gradeinfo grades =
-              new Gradeinfo(currentGrade, osCount, flCount, rpCount, tpCount);
+              Gradeinfo(currentGrade, osCount, flCount, rpCount, tpCount);
           lines.add(grades);
           currentGrade = grade;
           osCount = ascent.style == 1 ? 1 : 0;
@@ -221,7 +201,7 @@ class DatabaseHelper {
       }
     }
     Gradeinfo grades =
-        new Gradeinfo(currentGrade, osCount, flCount, rpCount, tpCount);
+        Gradeinfo(currentGrade, osCount, flCount, rpCount, tpCount);
     lines.add(grades);
     return lines;
   }
