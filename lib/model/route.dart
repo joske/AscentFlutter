@@ -13,7 +13,7 @@ class Route {
   Route.fromMap(Map<String, dynamic> res)
       : id = res["_id"],
         name = res["name"],
-        grade = res["grage"],
+        grade = res["grade"],
         crag = res["crag"],
         sector = res["sector"] != null ? res["sector"] : "",
         gradeScore = getScore(res["grade"]);
