@@ -117,19 +117,45 @@ class MaterialHomeState extends State<MaterialHome> {
 
   Widget buildDrawer(BuildContext context) {
     return ListView(
-      // Important: Remove any padding from the ListView.
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
           decoration: BoxDecoration(
-            color: Colors.blue,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.blue[700]!, Colors.blue[400]!],
+            ),
           ),
-          child: Text('Ascent'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(Icons.terrain, size: 48, color: Colors.white),
+              const SizedBox(height: 8),
+              Text(
+                'Ascent',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Track your climbing journey',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ),
         ListTile(
+          leading: Icon(Icons.location_on, color: Colors.blue[600]),
           title: Text('Crags'),
           onTap: () async {
-            Navigator.of(context).pop(); // close drawer
+            Navigator.of(context).pop();
             await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CragScreen()),
@@ -137,7 +163,20 @@ class MaterialHomeState extends State<MaterialHome> {
             setState(() {});
           },
         ),
+        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+          child: Text(
+            'STATISTICS',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
         ListTile(
+          leading: Icon(Icons.summarize, color: Colors.teal[600]),
           title: Text('Summary'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -146,6 +185,7 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          leading: Icon(Icons.bar_chart, color: Colors.purple[600]),
           title: Text('Statistics'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -154,6 +194,7 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          leading: Icon(Icons.emoji_events, color: Colors.amber[600]),
           title: Text('Top 10'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -162,6 +203,7 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          leading: Icon(Icons.show_chart, color: Colors.orange[600]),
           title: Text('Grade Pyramid'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -169,7 +211,20 @@ class MaterialHomeState extends State<MaterialHome> {
             setState(() {});
           },
         ),
+        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+          child: Text(
+            'DATA',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
         ListTile(
+          leading: Icon(Icons.file_download, color: Colors.green[600]),
           title: Text('Import'),
           onTap: () async {
             Navigator.of(context).pop();
@@ -178,6 +233,7 @@ class MaterialHomeState extends State<MaterialHome> {
           },
         ),
         ListTile(
+          leading: Icon(Icons.file_upload, color: Colors.indigo[600]),
           title: Text('Export'),
           onTap: () async {
             Navigator.of(context).pop();
