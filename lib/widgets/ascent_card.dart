@@ -18,9 +18,12 @@ class AscentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: isDark ? Colors.grey[850] : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -29,20 +32,20 @@ class AscentCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderRow(context),
+            _buildHeaderRow(context, isDark),
             const SizedBox(height: 8),
-            _buildLocationRow(context),
+            _buildLocationRow(context, isDark),
             const SizedBox(height: 6),
-            _buildMetadataRow(context),
+            _buildMetadataRow(context, isDark),
             if (ascent.comment != null && ascent.comment!.isNotEmpty)
-              _buildCommentRow(context),
+              _buildCommentRow(context, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeaderRow(BuildContext context) {
+  Widget _buildHeaderRow(BuildContext context, bool isDark) {
     return Row(
       children: [
         GradeBadge(grade: ascent.route?.grade ?? '?'),
@@ -50,9 +53,11 @@ class AscentCard extends StatelessWidget {
         Expanded(
           child: Text(
             ascent.route?.name ?? 'Unknown',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -63,21 +68,22 @@ class AscentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationRow(BuildContext context) {
+  Widget _buildLocationRow(BuildContext context, bool isDark) {
     final cragName = ascent.route?.crag?.name ?? 'Unknown';
     final sector = ascent.route?.sector;
     final hasValidSector = sector != null && sector.isNotEmpty;
 
     return Row(
       children: [
-        Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+        Icon(Icons.location_on, size: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
         const SizedBox(width: 4),
         Expanded(
           child: Text(
             hasValidSector ? '$cragName / $sector' : cragName,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[700],
-                ),
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -85,14 +91,17 @@ class AscentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetadataRow(BuildContext context) {
+  Widget _buildMetadataRow(BuildContext context, bool isDark) {
     return Row(
       children: [
-        Icon(Icons.calendar_today, size: 12, color: Colors.grey[500]),
+        Icon(Icons.calendar_today, size: 12, color: isDark ? Colors.grey[500] : Colors.grey[500]),
         const SizedBox(width: 4),
         Text(
           ascent.date != null ? _formatter.format(ascent.date!) : '-',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
         ),
         const SizedBox(width: 16),
         StarRating(stars: ascent.stars ?? 0),
@@ -100,14 +109,14 @@ class AscentCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
+            color: isDark ? Colors.blue[900] : Colors.blue[50],
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             '${ascent.score ?? 0}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.blue[700],
+              color: isDark ? Colors.blue[200] : Colors.blue[700],
               fontSize: 14,
             ),
           ),
@@ -116,15 +125,16 @@ class AscentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCommentRow(BuildContext context) {
+  Widget _buildCommentRow(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
         ascent.comment!,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-              color: Colors.grey[600],
-            ),
+        style: TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+          color: isDark ? Colors.grey[400] : Colors.grey[600],
+        ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),

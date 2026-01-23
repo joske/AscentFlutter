@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'model/crag.dart';
 import 'database.dart';
@@ -27,62 +28,40 @@ class _CupertinoAddCragScreenState extends State<CupertinoAddCragScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.passedCrag != null;
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
 
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(false),
-              ),
-              Text(
-                isEditing ? 'Edit Crag' : 'Add Crag',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Text(
-                  isEditing ? 'Update' : 'Add',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                onPressed: _saveCrag,
-              ),
-            ],
+    return ListView(
+      children: <Widget>[
+        // Form
+        CupertinoFormSection.insetGrouped(
+          header: Text('CRAG DETAILS'),
+          children: [
+            CupertinoTextFormFieldRow(
+              controller: nameController,
+              prefix: Text('Name'),
+              placeholder: 'e.g. Margalef',
+              textCapitalization: TextCapitalization.words,
+              style: TextStyle(color: textColor),
+            ),
+            CupertinoTextFormFieldRow(
+              controller: countryController,
+              prefix: Text('Country'),
+              placeholder: 'e.g. BEL, FRA, ESP',
+              textCapitalization: TextCapitalization.words,
+              style: TextStyle(color: textColor),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: CupertinoButton.filled(
+            onPressed: _saveCrag,
+            child: Text(widget.passedCrag != null ? 'Update' : 'Add'),
           ),
-          const SizedBox(height: 20),
-
-          // Form
-          CupertinoFormSection.insetGrouped(
-            header: Text('CRAG DETAILS'),
-            children: [
-              CupertinoTextFormFieldRow(
-                controller: nameController,
-                prefix: Text('Name'),
-                placeholder: 'e.g. Margalef',
-                textCapitalization: TextCapitalization.words,
-              ),
-              CupertinoTextFormFieldRow(
-                controller: countryController,
-                prefix: Text('Country'),
-                placeholder: 'e.g. BEL, FRA, ESP',
-                textCapitalization: TextCapitalization.words,
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

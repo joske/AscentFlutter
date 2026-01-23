@@ -19,11 +19,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Material(
-        child: Container(
-          padding: EdgeInsets.only(top: 100.0, bottom: 100),
-          child: buildBody(context),
-        ),
+      return SafeArea(
+        child: buildBody(context),
       );
     }
     return Scaffold(
@@ -49,6 +46,13 @@ class _OverviewScreenState extends State<OverviewScreen> {
         final totalRP = gradeInfos.fold<int>(0, (sum, info) => sum + info.rpCount);
         final totalTP = gradeInfos.fold<int>(0, (sum, info) => sum + info.tpCount);
 
+        final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+        final titleStyle = TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black87,
+        );
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -56,12 +60,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
             children: [
               _buildSummaryCards(totalAscents, totalOS, totalFL, totalRP, totalTP),
               const SizedBox(height: 24),
-              Text(
-                'Ascents by Grade',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+              Text('Ascents by Grade', style: titleStyle),
               const SizedBox(height: 8),
               const ChartLegend(),
               const SizedBox(height: 16),
@@ -70,12 +69,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 child: GradeChart(gradeInfos: gradeInfos.reversed.toList()),
               ),
               const SizedBox(height: 24),
-              Text(
-                'Grade Breakdown',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+              Text('Grade Breakdown', style: titleStyle),
               const SizedBox(height: 8),
               _buildGradeTable(context, gradeInfos),
             ],
@@ -102,21 +96,26 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Widget _buildStatCard(String label, String value, Color color) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     return Card(
       elevation: 2,
+      color: isDark ? Colors.grey[850] : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: color, width: 3)),
         ),
         child: Column(
           children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ),
             const SizedBox(height: 4),
@@ -124,7 +123,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ],
@@ -134,8 +133,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Widget _buildGradeTable(BuildContext context, List<Gradeinfo> gradeInfos) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     return Card(
       elevation: 2,
+      color: isDark ? Colors.grey[850] : null,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Table(
@@ -150,15 +151,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
           children: [
             TableRow(
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+                border: Border(bottom: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!)),
               ),
               children: [
-                _tableHeader('Grade'),
-                _tableHeader('OS'),
-                _tableHeader('FL'),
-                _tableHeader('RP'),
-                _tableHeader('TP'),
-                _tableHeader('Total'),
+                _tableHeader('Grade', isDark),
+                _tableHeader('OS', isDark),
+                _tableHeader('FL', isDark),
+                _tableHeader('RP', isDark),
+                _tableHeader('TP', isDark),
+                _tableHeader('Total', isDark),
               ],
             ),
             ...gradeInfos.map((info) => TableRow(
@@ -167,8 +168,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     _tableCell(info.osCount.toString(), color: const Color(0xFF2E7D32)),
                     _tableCell(info.flCount.toString(), color: const Color(0xFFF9A825)),
                     _tableCell(info.rpCount.toString(), color: const Color(0xFFD32F2F)),
-                    _tableCell(info.tpCount.toString(), color: const Color(0xFF757575)),
-                    _tableCell(info.getTotal().toString(), isBold: true),
+                    _tableCell(info.tpCount.toString(), color: isDark ? Colors.grey[400] : const Color(0xFF757575)),
+                    _tableCell(info.getTotal().toString(), isBold: true, isDark: isDark),
                   ],
                 )),
           ],
@@ -177,12 +178,16 @@ class _OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-  Widget _tableHeader(String text) {
+  Widget _tableHeader(String text, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          color: isDark ? Colors.white : Colors.black87,
+        ),
         textAlign: TextAlign.center,
       ),
     );
@@ -207,7 +212,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-  Widget _tableCell(String text, {bool isBold = false, Color? color}) {
+  Widget _tableCell(String text, {bool isBold = false, Color? color, bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
       child: Text(
@@ -215,7 +220,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         style: TextStyle(
           fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           fontSize: 12,
-          color: color,
+          color: color ?? (isDark ? Colors.white : Colors.black87),
         ),
         textAlign: TextAlign.center,
       ),

@@ -21,10 +21,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
       return Material(
-          child: Container(
-        padding: EdgeInsets.only(top: 95.0),
-        child: buildBody(context),
-      ));
+        type: MaterialType.transparency,
+        child: SafeArea(
+          child: buildBody(context),
+        ),
+      );
     }
     return Scaffold(
         appBar: AppBar(

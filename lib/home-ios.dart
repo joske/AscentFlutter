@@ -1,4 +1,8 @@
+import 'package:ascent/eight_a_import.dart';
+import 'package:ascent/import.dart';
+import 'package:ascent/pyramid.dart';
 import 'package:ascent/statistics.dart';
+import 'package:ascent/top10.dart';
 import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'add_ascent_screen-ios.dart';
 import 'add_crag-ios.dart';
 import 'cragscreen.dart';
-import 'importscreen-ios.dart';
 import 'util.dart';
 import 'model/ascent.dart';
 import 'database.dart';
@@ -24,9 +27,19 @@ class CupertinoHome extends StatefulWidget {
 class CupertinoHomeState extends State<CupertinoHome> {
   String? query;
   TextEditingController? _textController;
+  late CupertinoTabController _tabController;
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = List.generate(
+    5,
+    (index) => GlobalKey<NavigatorState>(),
+  );
 
   CupertinoHomeState() {
     _textController = TextEditingController();
+    _tabController = CupertinoTabController();
+  }
+
+  void switchToHome() {
+    _tabController.index = 0;
   }
 
   void onSubmitted(String value) {
@@ -36,98 +49,226 @@ class CupertinoHomeState extends State<CupertinoHome> {
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
-        tabBar: CupertinoTabBar(items: buildTabBar(context)),
+        controller: _tabController,
+        tabBar: CupertinoTabBar(
+          items: buildTabBar(context),
+          onTap: (index) {
+            // Pop to root if tapping the already selected tab
+            if (_tabController.index == index) {
+              _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+            }
+          },
+        ),
         tabBuilder: (BuildContext context, int index) {
           switch (index) {
             case 0:
-              return buildHomeScreen();
+              return buildHomeScreen(index);
             case 1:
-              return buildCragScreen();
+              return buildCragScreen(index);
             case 2:
-              return buildSummaryScreen();
+              return buildSummaryScreen(index);
             case 3:
-              return buildStatsScreen();
+              return buildStatsScreen(index);
             case 4:
-              return buildImportScreen();
+              return buildMoreScreen(index);
             default:
-              return buildHomeScreen();
+              return buildHomeScreen(index);
           }
         });
   }
 
-  Widget buildStatsScreen() {
-    return CupertinoTabView(builder: (BuildContext context) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Statistics'),
-        ),
-        child: StatisticsScreen(),
-      );
-    });
+  Widget buildStatsScreen(int index) {
+    return CupertinoTabView(
+      navigatorKey: _navigatorKeys[index],
+      builder: (BuildContext context) {
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text('Statistics'),
+          ),
+          child: StatisticsScreen(),
+        );
+      },
+    );
   }
 
-  Widget buildSummaryScreen() {
-    return CupertinoTabView(builder: (BuildContext context) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Summary'),
-        ),
-        child: OverviewScreen(),
-      );
-    });
+  Widget buildSummaryScreen(int index) {
+    return CupertinoTabView(
+      navigatorKey: _navigatorKeys[index],
+      builder: (BuildContext context) {
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text('Summary'),
+          ),
+          child: OverviewScreen(),
+        );
+      },
+    );
   }
 
-  Widget buildImportScreen() {
-    return CupertinoTabView(builder: (BuildContext context) {
+  Widget buildMoreScreen(int index) {
+    return CupertinoTabView(
+      navigatorKey: _navigatorKeys[index],
+      builder: (BuildContext context) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Import/Export'),
+          middle: Text('More'),
         ),
-        child: ImportScreen(),
-      );
-    });
-  }
-
-  Widget buildCragScreen() {
-    return CupertinoTabView(builder: (BuildContext context) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Crags'),
-          trailing: CupertinoButton(
-            child: Icon(Icons.add),
-            onPressed: () async {
-              await showMaterialDialog(context, "Add Crag", CupertinoAddCragScreen(), [], 200, 400);
-              setState(() {});
-            },
+        child: SafeArea(
+          child: ListView(
+            children: [
+              CupertinoListSection.insetGrouped(
+                header: Text('STATISTICS'),
+                children: [
+                  CupertinoListTile(
+                    leading: Icon(CupertinoIcons.star_fill, color: Colors.amber[600], size: 20),
+                    title: Text('Top 10'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (context) => Top10Screen()),
+                    ),
+                  ),
+                  CupertinoListTile(
+                    leading: Icon(CupertinoIcons.chart_bar_alt_fill, color: Colors.orange[600], size: 20),
+                    title: Text('Grade Pyramid'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (context) => PyramidScreen()),
+                    ),
+                  ),
+                ],
+              ),
+              CupertinoListSection.insetGrouped(
+                header: Text('DATA'),
+                children: [
+                  CupertinoListTile(
+                    leading: Icon(CupertinoIcons.cloud_download, color: Colors.blue[600], size: 20),
+                    title: Text('Sync with 8a.nu'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        CupertinoPageRoute(builder: (context) => EightAImportScreen(onComplete: switchToHome)),
+                      );
+                    },
+                  ),
+                  CupertinoListTile(
+                    leading: Icon(CupertinoIcons.arrow_down_doc, color: Colors.green[600], size: 20),
+                    title: Text('Import CSV'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _importData(context),
+                  ),
+                  CupertinoListTile(
+                    leading: Icon(CupertinoIcons.arrow_up_doc, color: Colors.indigo[600], size: 20),
+                    title: Text('Export CSV'),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _exportData(context),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        child: CragScreen(),
       );
-    });
+    },
+    );
   }
 
-  Widget buildHomeScreen() {
-    return CupertinoTabView(builder: (BuildContext context) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(widget.title!),
-          trailing: CupertinoButton(
-            child: Icon(Icons.add),
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CupertinoAddAscentScreen()),
-              );
-              setState(() {});
-            },
+  Future<void> _importData(BuildContext context) async {
+    showProgressDialog(context, "Importing");
+    try {
+      var ascents = (await CsvImporter().readFile())!;
+      if (ascents.isNotEmpty) {
+        await DatabaseHelper.clear();
+        for (final a in ascents) {
+          await DatabaseHelper.addAscent(a);
+        }
+      }
+    } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      showAlertDialog(context, "Error", "Failed to import data");
+      return;
+    }
+    Navigator.of(context, rootNavigator: true).pop();
+    switchToHome();
+  }
+
+  Future<void> _exportData(BuildContext context) async {
+    showProgressDialog(context, "Exporting");
+    try {
+      var ascents = await DatabaseHelper.getAscents(null);
+      await CsvImporter().writeFile(ascents);
+    } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      showAlertDialog(context, "Error", "Failed to export data");
+      return;
+    }
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  Widget buildCragScreen(int index) {
+    return CupertinoTabView(
+      navigatorKey: _navigatorKeys[index],
+      builder: (BuildContext context) {
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text('Crags'),
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Icon(CupertinoIcons.add),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => CupertinoPageScaffold(
+                      navigationBar: CupertinoNavigationBar(
+                        middle: Text('Add Crag'),
+                        previousPageTitle: 'Crags',
+                      ),
+                      child: SafeArea(
+                        child: CupertinoAddCragScreen(),
+                      ),
+                    ),
+                  ),
+                );
+                setState(() {});
+              },
+            ),
           ),
-        ),
-        child: buildBody(context),
-      );
-    });
+          child: CragScreen(),
+        );
+      },
+    );
+  }
+
+  Widget buildHomeScreen(int index) {
+    return CupertinoTabView(
+      navigatorKey: _navigatorKeys[index],
+      builder: (BuildContext context) {
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text(widget.title!),
+            trailing: CupertinoButton(
+              child: Icon(Icons.add),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CupertinoAddAscentScreen()),
+                );
+                setState(() {});
+              },
+            ),
+          ),
+          child: buildBody(context),
+        );
+      },
+    );
   }
 
   Widget buildBody(BuildContext context) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+
     return Column(
       children: [
         Container(
@@ -143,7 +284,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
           ),
         ),
         Container(
-          color: Colors.grey[200],
+          color: isDark ? Colors.grey[850] : Colors.grey[200],
           child: FutureBuilder(
             future: DatabaseHelper.getAscents(query),
             builder: (context, snapshot) {
@@ -155,7 +296,6 @@ class CupertinoHomeState extends State<CupertinoHome> {
               return CupertinoListTile(
                   title: Text(
                     "Ascents: $len",
-                    style: Theme.of(context).textTheme.bodySmall,
                     softWrap: false,
                   ),
                   trailing: FutureBuilder(
@@ -164,7 +304,6 @@ class CupertinoHomeState extends State<CupertinoHome> {
                         var score = snapshot.data != null ? snapshot.data : "0";
                         return Text(
                           "Score: $score",
-                          style: Theme.of(context).textTheme.bodySmall,
                           softWrap: false,
                         );
                       }));
@@ -211,8 +350,8 @@ class CupertinoHomeState extends State<CupertinoHome> {
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: "Crags"),
       BottomNavigationBarItem(icon: Icon(CupertinoIcons.sum), label: "Summary"),
-      BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Statistics"),
-      BottomNavigationBarItem(icon: Icon(CupertinoIcons.floppy_disk), label: "Import/Export"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.chart_bar), label: "Stats"),
+      BottomNavigationBarItem(icon: Icon(CupertinoIcons.ellipsis), label: "More"),
     ];
   }
 }

@@ -8,7 +8,9 @@ import 'database.dart';
 import 'model/ascent.dart';
 
 class EightAImportScreen extends StatefulWidget {
-  const EightAImportScreen({super.key});
+  final VoidCallback? onComplete;
+
+  const EightAImportScreen({super.key, this.onComplete});
 
   @override
   State<EightAImportScreen> createState() => _EightAImportScreenState();
@@ -160,6 +162,53 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     await _fetchAscents();
   }
 
+  Future<String?> _fetchPage(int pageIndex) async {
+    // Start the fetch and store result in window variable
+    final fetchJs = '''
+      window.flutterFetchResult = null;
+      window.flutterFetchDone = false;
+      (async function() {
+        try {
+          const url = 'https://www.8a.nu/api/unification/ascent/v1/web/users/$_userSlug/ascents?category=sportclimbing&pageIndex=$pageIndex&pageSize=50&sortField=date_desc&timeFilter=0&gradeFilter=0&includeProjects=true&showRepeats=true&showDuplicates=false';
+          const response = await fetch(url);
+          if (!response.ok) {
+            window.flutterFetchResult = JSON.stringify({error: 'HTTP ' + response.status});
+          } else {
+            const data = await response.json();
+            window.flutterFetchResult = JSON.stringify({ascents: data.ascents});
+          }
+        } catch (e) {
+          window.flutterFetchResult = JSON.stringify({error: e.toString()});
+        }
+        window.flutterFetchDone = true;
+      })();
+    ''';
+
+    await _controller.runJavaScript(fetchJs);
+
+    // Poll for result
+    for (int i = 0; i < 100; i++) {
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final doneResult = await _controller.runJavaScriptReturningResult('window.flutterFetchDone');
+      if (doneResult.toString() == 'true') {
+        final result = await _controller.runJavaScriptReturningResult('window.flutterFetchResult');
+        var resultStr = result.toString();
+
+        // Remove surrounding quotes if present (iOS returns quoted strings)
+        if (resultStr.startsWith('"') && resultStr.endsWith('"')) {
+          resultStr = resultStr.substring(1, resultStr.length - 1);
+          resultStr = resultStr.replaceAll(r'\"', '"');
+          resultStr = resultStr.replaceAll(r'\/', '/');
+        }
+
+        return resultStr;
+      }
+    }
+
+    return null; // Timeout
+  }
+
   Future<void> _fetchAscents() async {
     if (_userSlug == null) {
       setState(() {
@@ -176,42 +225,72 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     _fetchedAscents = [];
     _stopFetching = false;
 
-    // Use JavaScript to fetch from within the WebView (cookies are automatically included)
-    final js = '''
-      (async function() {
-        try {
-          window.continueSync = true;
-          let pageIndex = 0;
+    try {
+      int pageIndex = 0;
 
-          while (window.continueSync) {
-            const url = 'https://www.8a.nu/api/unification/ascent/v1/web/users/$_userSlug/ascents?category=sportclimbing&pageIndex=' + pageIndex + '&pageSize=50&sortField=date_desc&timeFilter=0&gradeFilter=0&includeProjects=true&showRepeats=true&showDuplicates=false';
-            const response = await fetch(url);
-            if (!response.ok) {
-              FlutterChannel.postMessage(JSON.stringify({type: 'error', message: 'HTTP ' + response.status}));
-              return;
-            }
-            const data = await response.json();
+      while (!_stopFetching) {
+        final jsonStr = await _fetchPage(pageIndex);
 
-            if (data.ascents.length === 0) {
-              break;
-            }
-
-            // Send page to Flutter and wait for decision
-            FlutterChannel.postMessage(JSON.stringify({type: 'page', data: {ascents: data.ascents, pageIndex: pageIndex}}));
-
-            // Wait a bit for Flutter to process and set continueSync
-            await new Promise(r => setTimeout(r, 100));
-            pageIndex++;
-          }
-
-          FlutterChannel.postMessage(JSON.stringify({type: 'done'}));
-        } catch (e) {
-          FlutterChannel.postMessage(JSON.stringify({type: 'error', message: e.toString()}));
+        if (jsonStr == null) {
+          setState(() {
+            _error = 'Request timed out. Please try again.';
+            _isLoading = false;
+          });
+          return;
         }
-      })();
-    ''';
 
-    await _controller.runJavaScript(js);
+        final data = jsonDecode(jsonStr);
+
+        if (data['error'] != null) {
+          setState(() {
+            _error = data['error'];
+            _isLoading = false;
+          });
+          return;
+        }
+
+        final ascentsJson = data['ascents'] as List;
+        if (ascentsJson.isEmpty) {
+          break;
+        }
+
+        final pageAscents = ascentsJson.map((item) => Ascent.fromJson(item)).toList();
+
+        // Check if we should stop (all ascents on this page already exist)
+        int existingCount = 0;
+        for (final ascent in pageAscents) {
+          bool exists = false;
+          if (ascent.eightAId != null) {
+            exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!);
+          }
+          if (!exists && ascent.route?.name != null && ascent.date != null && ascent.route?.grade != null) {
+            final dateStr = ascent.date!.toIso8601String().substring(0, 10);
+            exists = await DatabaseHelper.ascentExists(ascent.route!.name!, dateStr, ascent.route!.grade!);
+          }
+          if (exists) existingCount++;
+        }
+
+        _fetchedAscents.addAll(pageAscents);
+
+        // Stop if all ascents on this page exist (we've caught up)
+        if (pageAscents.isNotEmpty && existingCount == pageAscents.length) {
+          _stopFetching = true;
+        }
+
+        pageIndex++;
+      }
+
+      setState(() {
+        _ascents = _fetchedAscents;
+        _isLoading = false;
+        _showWebView = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to fetch: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _importAscents() async {
@@ -256,21 +335,37 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Synced $_importedCount new, skipped $_skippedCount, linked $_updatedCount'),
-          duration: const Duration(seconds: 5),
-        ),
-      );
-      Navigator.of(context).pop();
+      // Stop the WebView before navigating away
+      try {
+        await _controller.loadRequest(Uri.parse('about:blank'));
+      } catch (_) {}
+
+      // Small delay to let WebView cleanup
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Synced $_importedCount new, skipped $_skippedCount, linked $_updatedCount'),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      } catch (_) {
+        // SnackBar not available on iOS
+      }
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        widget.onComplete?.call();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Material(
-        child: SafeArea(
+      return Scaffold(
+        body: SafeArea(
           child: Container(
             padding: const EdgeInsets.only(top: 50),
             child: _buildBody(context),
@@ -352,32 +447,52 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
 
   Widget _buildStatusBar() {
     final hasProfile = _userSlug != null;
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final backgroundColor = isDark ? Colors.grey[850] : Colors.grey[100];
+    final textColor = isDark ? Colors.white : Colors.black87;
 
     return Container(
       padding: const EdgeInsets.all(12),
-      color: Colors.grey[100],
-      child: Row(
+      color: backgroundColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _isLoggedIn ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: _isLoggedIn ? Colors.green : Colors.grey,
-            size: 20,
+          Row(
+            children: [
+              Icon(
+                _isLoggedIn ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: _isLoggedIn ? Colors.green : Colors.grey,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(_isLoggedIn ? 'Logged in' : 'Please log in',
+                  style: TextStyle(color: textColor)),
+              const SizedBox(width: 24),
+              Icon(
+                hasProfile ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: hasProfile ? Colors.green : Colors.grey,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  hasProfile ? 'Profile: $_userSlug' : 'Navigate to your profile',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Text(_isLoggedIn ? 'Logged in' : 'Please log in'),
-          const SizedBox(width: 24),
-          Icon(
-            hasProfile ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: hasProfile ? Colors.green : Colors.grey,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              hasProfile ? 'Profile: $_userSlug' : 'Navigate to your profile',
-              overflow: TextOverflow.ellipsis,
+          if (hasProfile) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _onFetchPressed,
+                child: const Text('Fetch Ascents'),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

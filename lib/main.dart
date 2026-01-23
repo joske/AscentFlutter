@@ -23,13 +23,24 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
     );
 
-    final CupertinoThemeData iosTheme = const CupertinoThemeData(brightness: Brightness.dark);
-
     if (Platform.isIOS) {
       return CupertinoApp(
         title: 'Ascents',
-        theme: iosTheme,
-        home: CupertinoHome(title: 'Ascents'),
+        // Theme follows system setting automatically when not specified
+        home: Builder(
+          builder: (context) {
+            final brightness = MediaQuery.platformBrightnessOf(context);
+            return Theme(
+              data: brightness == Brightness.dark
+                  ? ThemeData.dark().copyWith(
+                      cardColor: Colors.grey[850],
+                      scaffoldBackgroundColor: Colors.black,
+                    )
+                  : ThemeData.light(),
+              child: CupertinoHome(title: 'Ascents'),
+            );
+          },
+        ),
         localizationsDelegates: [
           DefaultMaterialLocalizations.delegate,
           DefaultCupertinoLocalizations.delegate,

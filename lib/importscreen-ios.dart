@@ -1,3 +1,4 @@
+import 'package:ascent/eight_a_import.dart';
 import 'package:ascent/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,10 @@ import 'database.dart';
 import "import.dart";
 
 class ImportScreen extends StatelessWidget {
+  final VoidCallback? onSyncComplete;
+
+  const ImportScreen({Key? key, this.onSyncComplete}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,6 +37,22 @@ class ImportScreen extends StatelessWidget {
                     exportData(context);
                   },
                   child: Text("Export"),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: <Widget>[
+              Flexible(
+                child: CupertinoButton(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EightAImportScreen(onComplete: onSyncComplete)),
+                    );
+                  },
+                  child: Text("Sync with 8a.nu"),
                 ),
               ),
             ],

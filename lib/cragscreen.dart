@@ -39,14 +39,38 @@ class _CragScreenState extends State<CragScreen> {
   }
 
   Widget _buildRow(Crag crag) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     var text = Text(
       crag.name!,
-      style: Theme.of(context).textTheme.bodyLarge,
+      style: TextStyle(
+        fontSize: 16,
+        color: isDark ? Colors.white : Colors.black87,
+      ),
     );
     if (Platform.isIOS) {
       return Card(
+        color: isDark ? Colors.grey[850] : null,
         child: CupertinoListTile(
-            title: text, onTap: () => showMaterialDialog(context, "Update Crag", CupertinoAddCragScreen(passedCrag: crag), [], 200, 400)),
+          title: text,
+          trailing: const CupertinoListTileChevron(),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => CupertinoPageScaffold(
+                  navigationBar: CupertinoNavigationBar(
+                    middle: Text('Edit Crag'),
+                    previousPageTitle: 'Crags',
+                  ),
+                  child: SafeArea(
+                    child: CupertinoAddCragScreen(passedCrag: crag),
+                  ),
+                ),
+              ),
+            );
+            setState(() {});
+          },
+        ),
       );
     }
     return Card(

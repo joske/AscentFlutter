@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ascent/model/gradeinfo.dart';
 import 'package:ascent/widgets/grade_badge.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 
@@ -14,12 +15,13 @@ class _PyramidScreenState extends State<PyramidScreen> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Material(
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Grade Pyramid'),
+          previousPageTitle: 'More',
+        ),
         child: SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(top: 50),
-            child: _buildBody(context),
-          ),
+          child: _buildBody(context),
         ),
       );
     }

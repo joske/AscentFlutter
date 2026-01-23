@@ -4,6 +4,7 @@ import 'package:ascent/model/ascent.dart';
 import 'package:ascent/database.dart';
 import 'package:ascent/widgets/grade_badge.dart';
 import 'package:ascent/widgets/style_chip.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Top10Screen extends StatefulWidget {
@@ -13,6 +14,7 @@ class Top10Screen extends StatefulWidget {
 
 class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _selectedSegment = 0;
 
   @override
   void initState() {
@@ -29,10 +31,13 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Material(
-        child: Container(
-          padding: EdgeInsets.only(top: 100.0, bottom: 100),
-          child: _buildBody(context),
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Top 10'),
+          previousPageTitle: 'More',
+        ),
+        child: SafeArea(
+          child: _buildIOSBody(context),
         ),
       );
     }
@@ -48,6 +53,34 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
         ),
       ),
       body: _buildBody(context),
+    );
+  }
+
+  Widget _buildIOSBody(BuildContext context) {
+    return Column(
+      children: [
+        _buildScoreHeader(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: CupertinoSlidingSegmentedControl<int>(
+            groupValue: _selectedSegment,
+            children: const {
+              0: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('All Time')),
+              1: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('Last 12 Months')),
+            },
+            onValueChanged: (value) {
+              setState(() {
+                _selectedSegment = value!;
+              });
+            },
+          ),
+        ),
+        Expanded(
+          child: _selectedSegment == 0
+              ? _buildTop10List(DatabaseHelper.getTop10AllTime())
+              : _buildTop10List(DatabaseHelper.getTop10Last12Months()),
+        ),
+      ],
     );
   }
 
@@ -93,8 +126,10 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
   }
 
   Widget _buildScoreCard(String label, int score, Color color) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     return Card(
       elevation: 2,
+      color: isDark ? Colors.grey[850] : null,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
@@ -115,7 +150,7 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ],
@@ -144,8 +179,10 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
   }
 
   Widget _buildRankCard(int rank, Ascent ascent) {
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
+      color: isDark ? Colors.grey[850] : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -160,13 +197,16 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
                 children: [
                   Text(
                     ascent.route?.name ?? 'Unknown',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     ascent.route?.crag?.name ?? '',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
                   ),
                 ],
               ),
@@ -179,14 +219,14 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: isDark ? Colors.blue[900] : Colors.blue[50],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 ascent.score?.toString() ?? '0',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
+                  color: isDark ? Colors.blue[200] : Colors.blue[700],
                   fontSize: 16,
                 ),
               ),
