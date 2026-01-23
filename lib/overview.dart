@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:ascent/util.dart';
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,20 +17,17 @@ class OverviewScreen extends StatefulWidget {
 class _OverviewScreenState extends State<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return SafeArea(
-        child: buildBody(context),
-      );
+    // Overview is embedded in a tab on iOS
+    if (PlatformUtils.isIOS) {
+      return AdaptiveTabBody(child: _buildBody(context));
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Summary'),
-      ),
-      body: buildBody(context),
+      appBar: AppBar(title: Text('Summary')),
+      body: _buildBody(context),
     );
   }
 
-  Widget buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context) {
     return FutureBuilder<List<Gradeinfo>>(
       future: DatabaseHelper.getGradeInfos(),
       builder: (context, snapshot) {
@@ -46,13 +42,6 @@ class _OverviewScreenState extends State<OverviewScreen> {
         final totalRP = gradeInfos.fold<int>(0, (sum, info) => sum + info.rpCount);
         final totalTP = gradeInfos.fold<int>(0, (sum, info) => sum + info.tpCount);
 
-        final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-        final titleStyle = TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black87,
-        );
-
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -60,7 +49,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
             children: [
               _buildSummaryCards(totalAscents, totalOS, totalFL, totalRP, totalTP),
               const SizedBox(height: 24),
-              Text('Ascents by Grade', style: titleStyle),
+              Text('Ascents by Grade', style: _titleStyle(context)),
               const SizedBox(height: 8),
               const ChartLegend(),
               const SizedBox(height: 16),
@@ -69,7 +58,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 child: GradeChart(gradeInfos: gradeInfos.reversed.toList()),
               ),
               const SizedBox(height: 24),
-              Text('Grade Breakdown', style: titleStyle),
+              Text('Grade Breakdown', style: _titleStyle(context)),
               const SizedBox(height: 8),
               _buildGradeTable(context, gradeInfos),
             ],
@@ -79,106 +68,75 @@ class _OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
+  TextStyle _titleStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: PlatformUtils.textColor(context),
+    );
+  }
+
   Widget _buildSummaryCards(int total, int os, int fl, int rp, int tp) {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Total', total.toString(), Colors.blue)),
+        Expanded(child: AdaptiveStatCard(label: 'Total', value: total.toString(), color: Colors.blue)),
         const SizedBox(width: 8),
-        Expanded(child: _buildStatCard('OS', os.toString(), const Color(0xFF2E7D32))),
+        Expanded(child: AdaptiveStatCard(label: 'OS', value: os.toString(), color: const Color(0xFF2E7D32))),
         const SizedBox(width: 8),
-        Expanded(child: _buildStatCard('FL', fl.toString(), const Color(0xFFF9A825))),
+        Expanded(child: AdaptiveStatCard(label: 'FL', value: fl.toString(), color: const Color(0xFFF9A825))),
         const SizedBox(width: 8),
-        Expanded(child: _buildStatCard('RP', rp.toString(), const Color(0xFFD32F2F))),
+        Expanded(child: AdaptiveStatCard(label: 'RP', value: rp.toString(), color: const Color(0xFFD32F2F))),
         const SizedBox(width: 8),
-        Expanded(child: _buildStatCard('TP', tp.toString(), const Color(0xFF757575))),
+        Expanded(child: AdaptiveStatCard(label: 'TP', value: tp.toString(), color: const Color(0xFF757575))),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, Color color) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    return Card(
-      elevation: 2,
-      color: isDark ? Colors.grey[850] : null,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: color, width: 3)),
-        ),
-        child: Column(
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildGradeTable(BuildContext context, List<Gradeinfo> gradeInfos) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    return Card(
-      elevation: 2,
-      color: isDark ? Colors.grey[850] : null,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Table(
-          columnWidths: const {
-            0: FlexColumnWidth(1.5),
-            1: FlexColumnWidth(1),
-            2: FlexColumnWidth(1),
-            3: FlexColumnWidth(1),
-            4: FlexColumnWidth(1),
-            5: FlexColumnWidth(1),
-          },
-          children: [
-            TableRow(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!)),
-              ),
-              children: [
-                _tableHeader('Grade', isDark),
-                _tableHeader('OS', isDark),
-                _tableHeader('FL', isDark),
-                _tableHeader('RP', isDark),
-                _tableHeader('TP', isDark),
-                _tableHeader('Total', isDark),
-              ],
+    final isDark = PlatformUtils.isDarkMode(context);
+
+    return AdaptiveCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(8),
+      child: Table(
+        columnWidths: const {
+          0: FlexColumnWidth(1.5),
+          1: FlexColumnWidth(1),
+          2: FlexColumnWidth(1),
+          3: FlexColumnWidth(1),
+          4: FlexColumnWidth(1),
+          5: FlexColumnWidth(1),
+        },
+        children: [
+          TableRow(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: PlatformUtils.dividerColor(context))),
             ),
-            ...gradeInfos.map((info) => TableRow(
-                  children: [
-                    _gradeCell(context, info.grade),
-                    _tableCell(info.osCount.toString(), color: const Color(0xFF2E7D32)),
-                    _tableCell(info.flCount.toString(), color: const Color(0xFFF9A825)),
-                    _tableCell(info.rpCount.toString(), color: const Color(0xFFD32F2F)),
-                    _tableCell(info.tpCount.toString(), color: isDark ? Colors.grey[400] : const Color(0xFF757575)),
-                    _tableCell(info.getTotal().toString(), isBold: true, isDark: isDark),
-                  ],
-                )),
-          ],
-        ),
+            children: [
+              _tableHeader('Grade'),
+              _tableHeader('OS'),
+              _tableHeader('FL'),
+              _tableHeader('RP'),
+              _tableHeader('TP'),
+              _tableHeader('Total'),
+            ],
+          ),
+          ...gradeInfos.map((info) => TableRow(
+                children: [
+                  _gradeCell(context, info.grade),
+                  _tableCell(info.osCount.toString(), color: const Color(0xFF2E7D32)),
+                  _tableCell(info.flCount.toString(), color: const Color(0xFFF9A825)),
+                  _tableCell(info.rpCount.toString(), color: const Color(0xFFD32F2F)),
+                  _tableCell(info.tpCount.toString(), color: isDark ? Colors.grey[400] : const Color(0xFF757575)),
+                  _tableCell(info.getTotal().toString(), isBold: true),
+                ],
+              )),
+        ],
       ),
     );
   }
 
-  Widget _tableHeader(String text, bool isDark) {
+  Widget _tableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Text(
@@ -186,7 +144,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 12,
-          color: isDark ? Colors.white : Colors.black87,
+          color: PlatformUtils.textColor(context),
         ),
         textAlign: TextAlign.center,
       ),
@@ -212,7 +170,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
     );
   }
 
-  Widget _tableCell(String text, {bool isBold = false, Color? color, bool isDark = false}) {
+  Widget _tableCell(String text, {bool isBold = false, Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
       child: Text(
@@ -220,7 +178,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
         style: TextStyle(
           fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           fontSize: 12,
-          color: color ?? (isDark ? Colors.white : Colors.black87),
+          color: color ?? PlatformUtils.textColor(context),
         ),
         textAlign: TextAlign.center,
       ),
@@ -228,139 +186,40 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   void _showGradeDetail(BuildContext context, String grade) {
-    if (Platform.isIOS) {
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          opaque: true,
-          pageBuilder: (context, _, __) {
-            return FullDialogPage(grade);
-          },
-        ),
-      );
-    } else {
-      _showMaterialDetail(context, grade);
-    }
-  }
-
-  void _showMaterialDetail(BuildContext context, String grade) async {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    showMaterialDialog(
-      context,
-      'Grade $grade',
-      await _buildDetailContent(grade),
-      <Widget>[
-        TextButton(
-          child: Text('Close'),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-        )
-      ],
-      height - 100,
-      width,
-    );
-  }
-
-  Future<Widget> _buildDetailContent(String grade) async {
-    return FutureBuilder<List<Ascent>>(
-      future: DatabaseHelper.getAscentsWhere("route_grade = ?", [grade]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: snapshot.data!.length,
-          itemBuilder: (context, index) {
-            return AscentCard(
-              ascent: snapshot.data![index],
-              trailing: const SizedBox(width: 8),
-            );
-          },
-        );
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _GradeDetailPage(grade: grade),
+      ),
     );
   }
 }
 
-class FullDialogPage extends StatefulWidget {
+class _GradeDetailPage extends StatelessWidget {
   final String grade;
-  FullDialogPage(this.grade);
 
-  @override
-  _FullDialogPageState createState() => _FullDialogPageState();
-}
-
-class _FullDialogPageState extends State<FullDialogPage> with TickerProviderStateMixin {
-  late AnimationController _primary, _secondary;
-  late Animation<double> _animationPrimary, _animationSecondary;
-
-  @override
-  void initState() {
-    _primary = AnimationController(vsync: this, duration: Duration(seconds: 1));
-    _animationPrimary = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _primary, curve: Curves.easeOut));
-    _secondary = AnimationController(vsync: this, duration: Duration(seconds: 1));
-    _animationSecondary = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _secondary, curve: Curves.easeOut));
-    _primary.forward();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _primary.dispose();
-    _secondary.dispose();
-    super.dispose();
-  }
+  const _GradeDetailPage({required this.grade});
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoFullscreenDialogTransition(
-      primaryRouteAnimation: _animationPrimary,
-      secondaryRouteAnimation: _animationSecondary,
-      linearTransition: false,
-      child: Container(
-        padding: EdgeInsets.only(top: 100, bottom: 100),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Grade ${widget.grade}',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Flexible(
-              child: FutureBuilder<List<Ascent>>(
-                future: DatabaseHelper.getAscentsWhere("route_grade = ?", [widget.grade]),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return AscentCard(
-                        ascent: snapshot.data![index],
-                        trailing: const SizedBox(width: 8),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            Row(
-              children: [
-                CupertinoButton(
-                  child: Text("Close"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            )
-          ],
-        ),
+    return AdaptiveScaffold(
+      title: 'Grade $grade',
+      previousPageTitle: 'Summary',
+      body: FutureBuilder<List<Ascent>>(
+        future: DatabaseHelper.getAscentsWhere("route_grade = ?", [grade]),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return AscentCard(
+                ascent: snapshot.data![index],
+                trailing: const SizedBox(width: 8),
+              );
+            },
+          );
+        },
       ),
     );
   }

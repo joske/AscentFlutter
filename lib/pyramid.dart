@@ -1,8 +1,6 @@
-import 'dart:io';
-
 import 'package:ascent/model/gradeinfo.dart';
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:ascent/widgets/grade_badge.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 
@@ -14,21 +12,9 @@ class PyramidScreen extends StatefulWidget {
 class _PyramidScreenState extends State<PyramidScreen> {
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Grade Pyramid'),
-          previousPageTitle: 'More',
-        ),
-        child: SafeArea(
-          child: _buildBody(context),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Grade Pyramid'),
-      ),
+    return AdaptiveScaffold(
+      title: 'Grade Pyramid',
+      previousPageTitle: 'More',
       body: _buildBody(context),
     );
   }
@@ -66,11 +52,12 @@ class _PyramidScreenState extends State<PyramidScreen> {
   }
 
   Widget _buildLegend() {
+    final isDark = PlatformUtils.isDarkMode(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+        color: isDark ? Colors.grey[800] : Colors.grey[100],
+        border: Border(bottom: BorderSide(color: PlatformUtils.dividerColor(context))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +68,7 @@ class _PyramidScreenState extends State<PyramidScreen> {
           const SizedBox(width: 20),
           _legendItem('RP', const Color(0xFFD32F2F)),
           const SizedBox(width: 20),
-          _legendItem('TP', const Color(0xFF757575)),
+          _legendItem('TP', isDark ? Colors.grey[400]! : const Color(0xFF757575)),
         ],
       ),
     );
@@ -100,12 +87,13 @@ class _PyramidScreenState extends State<PyramidScreen> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: PlatformUtils.textColor(context))),
       ],
     );
   }
 
   Widget _buildPyramidRow(Gradeinfo grade, int maxTotal) {
+    final isDark = PlatformUtils.isDarkMode(context);
     final total = grade.getTotal();
     final barWidth = maxTotal > 0 ? total / maxTotal : 0.0;
 
@@ -132,7 +120,7 @@ class _PyramidScreenState extends State<PyramidScreen> {
                     Container(
                       height: 28,
                       decoration: BoxDecoration(
-                        color: Colors.grey[200],
+                        color: isDark ? Colors.grey[700] : Colors.grey[200],
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -155,7 +143,7 @@ class _PyramidScreenState extends State<PyramidScreen> {
             width: 36,
             child: Text(
               total.toString(),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, color: PlatformUtils.textColor(context)),
               textAlign: TextAlign.right,
             ),
           ),

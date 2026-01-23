@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -363,7 +363,8 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
+    // iOS handles this differently - embedded in CupertinoPageRoute with its own nav bar
+    if (PlatformUtils.isIOS) {
       return Scaffold(
         body: SafeArea(
           child: Container(
@@ -447,9 +448,9 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
 
   Widget _buildStatusBar() {
     final hasProfile = _userSlug != null;
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = PlatformUtils.isDarkMode(context);
     final backgroundColor = isDark ? Colors.grey[850] : Colors.grey[100];
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final textColor = PlatformUtils.textColor(context);
 
     return Container(
       padding: const EdgeInsets.all(12),

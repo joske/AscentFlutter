@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:ascent/model/ascent.dart';
 import 'package:ascent/database.dart';
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:ascent/widgets/grade_badge.dart';
 import 'package:ascent/widgets/style_chip.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Top10Screen extends StatefulWidget {
@@ -15,6 +13,7 @@ class Top10Screen extends StatefulWidget {
 class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedSegment = 0;
+  static const _segments = ['All Time', 'Last 12 Months'];
 
   @override
   void initState() {
@@ -30,57 +29,14 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Top 10'),
-          previousPageTitle: 'More',
-        ),
-        child: SafeArea(
-          child: _buildIOSBody(context),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Top 10'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'All Time'),
-            Tab(text: 'Last 12 Months'),
-          ],
-        ),
+    return AdaptiveScaffold(
+      title: 'Top 10',
+      previousPageTitle: 'More',
+      bottom: AdaptiveSegmentedControl.buildTabBar(
+        segments: _segments,
+        controller: _tabController,
       ),
       body: _buildBody(context),
-    );
-  }
-
-  Widget _buildIOSBody(BuildContext context) {
-    return Column(
-      children: [
-        _buildScoreHeader(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: CupertinoSlidingSegmentedControl<int>(
-            groupValue: _selectedSegment,
-            children: const {
-              0: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('All Time')),
-              1: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('Last 12 Months')),
-            },
-            onValueChanged: (value) {
-              setState(() {
-                _selectedSegment = value!;
-              });
-            },
-          ),
-        ),
-        Expanded(
-          child: _selectedSegment == 0
-              ? _buildTop10List(DatabaseHelper.getTop10AllTime())
-              : _buildTop10List(DatabaseHelper.getTop10Last12Months()),
-        ),
-      ],
     );
   }
 
@@ -88,15 +44,30 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
     return Column(
       children: [
         _buildScoreHeader(),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildTop10List(DatabaseHelper.getTop10AllTime()),
-              _buildTop10List(DatabaseHelper.getTop10Last12Months()),
-            ],
-          ),
+        // iOS: show segmented control in body
+        AdaptiveSegmentedControl(
+          selectedIndex: _selectedSegment,
+          segments: _segments,
+          onValueChanged: (value) => setState(() => _selectedSegment = value),
         ),
+        Expanded(child: _buildContent()),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    if (PlatformUtils.isIOS) {
+      // iOS: use state-based switching
+      return _selectedSegment == 0
+          ? _buildTop10List(DatabaseHelper.getTop10AllTime())
+          : _buildTop10List(DatabaseHelper.getTop10Last12Months());
+    }
+    // Android: use TabBarView
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildTop10List(DatabaseHelper.getTop10AllTime()),
+        _buildTop10List(DatabaseHelper.getTop10Last12Months()),
       ],
     );
   }
@@ -109,53 +80,17 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
       ]),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox(height: 60);
-        int scoreAllTime = snapshot.data![0];
-        int scoreLast12 = snapshot.data![1];
-        return Container(
+        return Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Expanded(child: _buildScoreCard('All Time', scoreAllTime, Colors.blue)),
+              Expanded(child: AdaptiveStatCard(label: 'All Time', value: snapshot.data![0].toString(), color: Colors.blue)),
               const SizedBox(width: 12),
-              Expanded(child: _buildScoreCard('Last 12 Months', scoreLast12, Colors.green)),
+              Expanded(child: AdaptiveStatCard(label: 'Last 12 Months', value: snapshot.data![1].toString(), color: Colors.green)),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildScoreCard(String label, int score, Color color) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    return Card(
-      elevation: 2,
-      color: isDark ? Colors.grey[850] : null,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: color, width: 3)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              score.toString(),
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -170,69 +105,61 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           itemCount: snapshot.data!.length,
-          itemBuilder: (context, index) {
-            return _buildRankCard(index + 1, snapshot.data![index]);
-          },
+          itemBuilder: (context, index) => _buildRankCard(snapshot.data![index]),
         );
       },
     );
   }
 
-  Widget _buildRankCard(int rank, Ascent ascent) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      color: isDark ? Colors.grey[850] : null,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // Grade badge
-            GradeBadge(grade: ascent.route?.grade ?? '?'),
-            const SizedBox(width: 12),
-            // Route info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ascent.route?.name ?? 'Unknown',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+  Widget _buildRankCard(Ascent ascent) {
+    final isDark = PlatformUtils.isDarkMode(context);
+
+    return AdaptiveCard(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          GradeBadge(grade: ascent.route?.grade ?? '?'),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ascent.route?.name ?? 'Unknown',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: PlatformUtils.textColor(context),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    ascent.route?.crag?.name ?? '',
-                    style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Style chip
-            if (ascent.style != null) StyleChip(style: ascent.style!),
-            const SizedBox(width: 8),
-            // Score
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.blue[900] : Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                ascent.score?.toString() ?? '0',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.blue[200] : Colors.blue[700],
-                  fontSize: 16,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 2),
+                Text(
+                  ascent.route?.crag?.name ?? '',
+                  style: TextStyle(fontSize: 12, color: PlatformUtils.secondaryTextColor(context)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (ascent.style != null) StyleChip(style: ascent.style!),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.blue[900] : Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              ascent.score?.toString() ?? '0',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.blue[200] : Colors.blue[700],
+                fontSize: 16,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

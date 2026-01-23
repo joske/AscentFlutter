@@ -1,3 +1,4 @@
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../model/ascent.dart';
@@ -18,29 +19,21 @@ class AscentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = PlatformUtils.isDarkMode(context);
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: isDark ? Colors.grey[850] : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderRow(context, isDark),
-            const SizedBox(height: 8),
-            _buildLocationRow(context, isDark),
-            const SizedBox(height: 6),
-            _buildMetadataRow(context, isDark),
-            if (ascent.comment != null && ascent.comment!.isNotEmpty)
-              _buildCommentRow(context, isDark),
-          ],
-        ),
+    return AdaptiveCard(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeaderRow(context, isDark),
+          const SizedBox(height: 8),
+          _buildLocationRow(context, isDark),
+          const SizedBox(height: 6),
+          _buildMetadataRow(context, isDark),
+          if (ascent.comment != null && ascent.comment!.isNotEmpty)
+            _buildCommentRow(context, isDark),
+        ],
       ),
     );
   }

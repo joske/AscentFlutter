@@ -3,6 +3,7 @@ import 'package:ascent/import.dart';
 import 'package:ascent/pyramid.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/top10.dart';
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -267,7 +268,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
   }
 
   Widget buildBody(BuildContext context) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = PlatformUtils.isDarkMode(context);
 
     return Column(
       children: [

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/material.dart';
 
@@ -19,12 +18,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return Material(
-        type: MaterialType.transparency,
-        child: SafeArea(
-          child: buildBody(context),
-        ),
+    // Statistics is embedded in a tab on iOS, needs AdaptiveTabBody
+    if (PlatformUtils.isIOS) {
+      return AdaptiveTabBody(
+        needsMaterial: true,
+        child: buildBody(context),
       );
     }
     return Scaffold(
@@ -85,7 +83,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       Row(children: [
         Padding(
           padding: const EdgeInsets.only(left: 16),
-          child: Text("Showing $numAscents Ascents"),
+          child: Text(
+            "Showing $numAscents Ascents",
+            style: TextStyle(color: PlatformUtils.textColor(context)),
+          ),
         ),
       ]),
       Flexible(

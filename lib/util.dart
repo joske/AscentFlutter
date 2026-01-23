@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -93,7 +92,7 @@ showAlertDialog(BuildContext context, String title, String message) {
 }
 
 showMaterialDialog(BuildContext context, String? title, Widget content, List<Widget> actions, double height, double width) {
-  if (Platform.isIOS) {
+  if (PlatformUtils.isIOS) {
     showCupertinoDialog(
         context: context,
         builder: (BuildContext context) => CupertinoAlertDialog(

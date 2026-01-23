@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:ascent/util.dart';
+import 'package:ascent/widgets/adaptive/adaptive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'add_crag-ios.dart';
@@ -17,7 +16,8 @@ class _CragScreenState extends State<CragScreen> {
   @override
   Widget build(BuildContext context) {
     var body = createScrollView(context, DatabaseHelper.getCrags(), _buildRow);
-    if (Platform.isIOS) {
+    // On iOS, embedded in CupertinoTabView which handles the nav bar
+    if (PlatformUtils.isIOS) {
       return Container(padding: EdgeInsets.only(top: 100.0, bottom: 70), child: body);
     }
     return Scaffold(
@@ -39,49 +39,37 @@ class _CragScreenState extends State<CragScreen> {
   }
 
   Widget _buildRow(Crag crag) {
-    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     var text = Text(
       crag.name!,
       style: TextStyle(
         fontSize: 16,
-        color: isDark ? Colors.white : Colors.black87,
+        color: PlatformUtils.textColor(context),
       ),
     );
-    if (Platform.isIOS) {
-      return Card(
-        color: isDark ? Colors.grey[850] : null,
-        child: CupertinoListTile(
-          title: text,
-          trailing: const CupertinoListTileChevron(),
-          onTap: () async {
-            await Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (context) => CupertinoPageScaffold(
-                  navigationBar: CupertinoNavigationBar(
-                    middle: Text('Edit Crag'),
-                    previousPageTitle: 'Crags',
-                  ),
-                  child: SafeArea(
-                    child: CupertinoAddCragScreen(passedCrag: crag),
-                  ),
-                ),
+
+    return AdaptiveListTile(
+      title: text,
+      showChevron: true,
+      onTap: () async {
+        if (PlatformUtils.isIOS) {
+          await Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => AdaptiveScaffold(
+                title: 'Edit Crag',
+                previousPageTitle: 'Crags',
+                body: CupertinoAddCragScreen(passedCrag: crag),
               ),
-            );
-            setState(() {});
-          },
-        ),
-      );
-    }
-    return Card(
-        child: ListTile(
-            enabled: true,
-            title: text,
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AddCragScreen(
-                          passedCrag: crag,
-                        )))));
+            ),
+          );
+        } else {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddCragScreen(passedCrag: crag)),
+          );
+        }
+        setState(() {});
+      },
+    );
   }
 }
