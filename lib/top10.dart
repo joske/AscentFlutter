@@ -144,39 +144,12 @@ class _Top10ScreenState extends State<Top10Screen> with SingleTickerProviderStat
   }
 
   Widget _buildRankCard(int rank, Ascent ascent) {
-    final isTopThree = rank <= 3;
-    final rankColors = {
-      1: Colors.amber[700],
-      2: Colors.grey[400],
-      3: Colors.brown[400],
-    };
-
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Rank badge
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: isTopThree ? rankColors[rank] : Colors.grey[200],
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  rank.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isTopThree ? Colors.white : Colors.grey[700],
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
             // Grade badge
             GradeBadge(grade: ascent.route?.grade ?? '?'),
             const SizedBox(width: 12),
