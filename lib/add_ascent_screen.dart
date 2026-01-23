@@ -19,11 +19,11 @@ class AddAscentScreen extends StatefulWidget {
 class _AddAscentScreenState extends State<AddAscentScreen> {
   final Ascent? passedAscent;
 
-  final TextEditingController nameController = new TextEditingController();
-  final TextEditingController sectorController = new TextEditingController();
-  final TextEditingController commentController = new TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController sectorController = TextEditingController();
+  final TextEditingController commentController = TextEditingController();
   DateTime? currentDate = DateTime.now();
-  var formatter = new DateFormat('yyyy-MM-dd');
+  var formatter = DateFormat('yyyy-MM-dd');
   int? styleId = 1;
   String? grade = "6a";
   var cragId;
@@ -31,14 +31,14 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
 
   _AddAscentScreenState({this.passedAscent}) {
     if (passedAscent != null) {
-      styleId = passedAscent!.style!.id;
-      grade = passedAscent!.route!.grade;
-      cragId = passedAscent!.route!.crag!.id;
-      nameController.text = passedAscent!.route!.name!;
-      sectorController.text = passedAscent!.route!.sector!;
-      currentDate = passedAscent!.date;
-      commentController.text = passedAscent!.comment!;
-      stars = passedAscent != null && passedAscent!.stars != null ? passedAscent!.stars!.toDouble() : 0.0;
+      styleId = passedAscent!.style?.id ?? 1;
+      grade = passedAscent!.route?.grade ?? "6a";
+      cragId = passedAscent!.route?.crag?.id;
+      nameController.text = passedAscent!.route?.name ?? '';
+      sectorController.text = passedAscent!.route?.sector ?? '';
+      currentDate = passedAscent!.date ?? DateTime.now();
+      commentController.text = passedAscent!.comment ?? '';
+      stars = passedAscent!.stars?.toDouble() ?? 0.0;
     }
   }
 
@@ -87,7 +87,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                     initialData: List.empty(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return CircularProgressIndicator();
-                      return new DropdownButton(
+                      return DropdownButton(
                           value: cragId,
                           hint: Text("Select Crag"),
                           items: buildCragList(snapshot),
@@ -130,7 +130,7 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 future: DatabaseHelper.getGrades(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return CircularProgressIndicator();
-                  return new DropdownButton(
+                  return DropdownButton(
                       value: grade,
                       items: buildGradeList(snapshot),
                       onChanged: (dynamic value) {
@@ -200,21 +200,6 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
             SizedBox(
               height: 10,
             ),
-            Row(
-              children: [
-                // SmoothStarRating(
-                //   allowHalfRating: false,
-                //   starCount: 3,
-                //   size: 30.0,
-                //   rating: stars,
-                //   onRated: (double value) {
-                //     setState(() {
-                //       stars = value;
-                //     });
-                //   },
-                // ),
-              ],
-            ),
             // buttons below
             SizedBox(
               height: 10,
@@ -232,14 +217,26 @@ class _AddAscentScreenState extends State<AddAscentScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    Crag crag = new Crag(id: cragId);
-                    mine.Route route = new mine.Route(
+                    if (nameController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please enter a route name')),
+                      );
+                      return;
+                    }
+                    if (cragId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please select a crag')),
+                      );
+                      return;
+                    }
+                    Crag crag = Crag(id: cragId);
+                    mine.Route route = mine.Route(
                       name: nameController.text,
                       crag: crag,
                       sector: sectorController.text,
                       grade: grade,
                     );
-                    Ascent ascent = new Ascent(
+                    Ascent ascent = Ascent(
                         route: route,
                         comment: commentController.text,
                         date: currentDate,

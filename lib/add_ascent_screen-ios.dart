@@ -20,11 +20,11 @@ class CupertinoAddAscentScreen extends StatefulWidget {
 class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
   final Ascent? passedAscent;
 
-  final TextEditingController nameController = new TextEditingController();
-  final TextEditingController sectorController = new TextEditingController();
-  final TextEditingController commentController = new TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController sectorController = TextEditingController();
+  final TextEditingController commentController = TextEditingController();
   DateTime? currentDate = DateTime.now();
-  var formatter = new DateFormat('yyyy-MM-dd');
+  var formatter = DateFormat('yyyy-MM-dd');
   int? styleId = 0;
   String? grade = "6a";
   var cragId;
@@ -36,14 +36,14 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
 
   _CupertinoAddAscentScreenState({this.passedAscent}) {
     if (passedAscent != null) {
-      styleId = passedAscent!.style!.id;
-      grade = passedAscent!.route!.grade;
-      cragId = passedAscent!.route!.crag!.id;
-      nameController.text = passedAscent!.route!.name!;
-      sectorController.text = passedAscent!.route!.sector!;
-      currentDate = passedAscent!.date;
-      commentController.text = passedAscent!.comment!;
-      stars = passedAscent != null && passedAscent!.stars != null ? passedAscent!.stars!.toDouble() : 0.0;
+      styleId = passedAscent!.style?.id ?? 0;
+      grade = passedAscent!.route?.grade ?? "6a";
+      cragId = passedAscent!.route?.crag?.id;
+      nameController.text = passedAscent!.route?.name ?? '';
+      sectorController.text = passedAscent!.route?.sector ?? '';
+      currentDate = passedAscent!.date ?? DateTime.now();
+      commentController.text = passedAscent!.comment ?? '';
+      stars = passedAscent!.stars?.toDouble() ?? 0.0;
     }
   }
 
@@ -82,7 +82,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                         Crag c = crags!.firstWhere((element) => element.id == cragId);
                         cragIndex = crags!.indexOf(c);
                       }
-                      return new CupertinoPicker(
+                      return CupertinoPicker(
                         scrollController: FixedExtentScrollController(initialItem: cragIndex),
                         looping: false,
                         itemExtent: 32,
@@ -115,13 +115,13 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                   child: FutureBuilder<List<String>>(
                     future: DatabaseHelper.getGrades(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) CircularProgressIndicator();
+                      if (!snapshot.hasData) return CircularProgressIndicator();
                       grades = snapshot.data;
                       var fixedExtentScrollController;
                       String c = grades!.firstWhere((element) => element == grade);
                       gradeIndex = grades!.indexOf(c);
                       fixedExtentScrollController = FixedExtentScrollController(initialItem: gradeIndex);
-                      return new CupertinoPicker(
+                      return CupertinoPicker(
                         scrollController: fixedExtentScrollController,
                         looping: false,
                         itemExtent: 32,
@@ -180,24 +180,7 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                // SmoothStarRating(
-                //   allowHalfRating: false,
-                //   starCount: 3,
-                //   size: 30.0,
-                //   rating: stars,
-                //   onRated: (double value) {
-                //     setState(() {
-                //       stars = value;
-                //     });
-                //   },
-                // ),
-              ],
-            ),
-            // buttons below
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             Row(
               children: [
                 CupertinoButton(
@@ -209,10 +192,42 @@ class _CupertinoAddAscentScreenState extends State<CupertinoAddAscentScreen> {
                 SizedBox(width: 10),
                 CupertinoButton(
                   onPressed: () async {
+                    if (nameController.text.trim().isEmpty) {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (context) => CupertinoAlertDialog(
+                          title: Text('Validation Error'),
+                          content: Text('Please enter a route name'),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: Text('OK'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+                    if (crags == null || crags!.isEmpty) {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (context) => CupertinoAlertDialog(
+                          title: Text('Validation Error'),
+                          content: Text('Please select a crag'),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: Text('OK'),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
                     Crag crag = crags![cragIndex];
                     grade = grades![this.gradeIndex];
-                    mine.Route route = new mine.Route(name: nameController.text, crag: crag, sector: sectorController.text, grade: grade);
-                    Ascent ascent = new Ascent(
+                    mine.Route route = mine.Route(name: nameController.text, crag: crag, sector: sectorController.text, grade: grade);
+                    Ascent ascent = Ascent(
                       route: route,
                       comment: commentController.text,
                       date: currentDate,
