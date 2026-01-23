@@ -75,6 +75,8 @@ class GradeBadge extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
+        maxLines: 1,
+        softWrap: false,
       ),
     );
   }

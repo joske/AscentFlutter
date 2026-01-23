@@ -193,10 +193,10 @@ class DatabaseHelper {
               Gradeinfo(currentGrade, osCount, flCount, rpCount, tpCount);
           lines.add(grades);
           currentGrade = grade;
-          osCount = ascent.style == 1 ? 1 : 0;
-          flCount = ascent.style == 2 ? 1 : 0;
-          rpCount = ascent.style == 3 ? 1 : 0;
-          tpCount = ascent.style == 4 ? 1 : 0;
+          osCount = ascent.style?.id == 1 ? 1 : 0;
+          flCount = ascent.style?.id == 2 ? 1 : 0;
+          rpCount = ascent.style?.id == 3 ? 1 : 0;
+          tpCount = ascent.style?.id == 4 ? 1 : 0;
         }
       }
     }
