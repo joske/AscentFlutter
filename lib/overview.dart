@@ -40,7 +40,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
       future: DatabaseHelper.getStats(year, cragId),
       initialData: List.empty(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) CircularProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
 
         return SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -102,14 +102,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
 }
 
 class DialogBuilder {
-  static DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  static DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   static Widget buildScrollView(BuildContext context, String? grade) {
     return createScrollView(context, DatabaseHelper.getAscentsWhere("route_grade = ?", [grade]), buildDetailRow);
   }
 
   static Widget buildDetailRow(Ascent ascent) {
-    var title = new Text("${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}");
+    var title = Text("${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}");
     var subtitle = Column(
       children: [
         Row(

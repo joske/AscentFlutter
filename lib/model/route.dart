@@ -19,7 +19,7 @@ class Route {
         gradeScore = getScore(res["grade"]);
 
   Map<String, dynamic> toMap() {
-    var map = new Map<String, dynamic>();
+    var map = <String, dynamic>{};
     map["name"] = name;
     map["grade"] = grade;
     map["crag_id"] = crag!.id;

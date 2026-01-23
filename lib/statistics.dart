@@ -15,7 +15,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   String? year = "All";
   int? cragId = 0;
   int numAscents = 0;
-  DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   if (year == "All" && snapshot.data!.length > 0) {
                     year = snapshot.data![0];
                   }
-                  return new DropdownButton(
+                  return DropdownButton(
                       value: year,
                       hint: Text("Year"),
                       items: buildYears(snapshot),
@@ -66,7 +66,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 initialData: List.empty(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return CircularProgressIndicator();
-                  return new DropdownButton(
+                  return DropdownButton(
                       value: cragId,
                       hint: Text("Select Crag"),
                       items: buildCragList(snapshot),
@@ -97,7 +97,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         numAscents = snapshot.data!.length;
-        return new Scrollbar(
+        return Scrollbar(
             thickness: 30,
             interactive: true,
             child: Center(
@@ -148,7 +148,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         value: crag.id,
       );
     }).toList();
-    list.insert(0, new DropdownMenuItem<int>(child: Text("All"), value: 0));
+    list.insert(0, DropdownMenuItem<int>(child: Text("All"), value: 0));
     return list;
   }
 
