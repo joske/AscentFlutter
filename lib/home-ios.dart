@@ -1,7 +1,7 @@
 import 'package:ascent/statistics.dart';
+import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'add_ascent_screen-ios.dart';
 import 'add_crag-ios.dart';
@@ -22,7 +22,6 @@ class CupertinoHome extends StatefulWidget {
 }
 
 class CupertinoHomeState extends State<CupertinoHome> {
-  DateFormat formatter = DateFormat('yyyy-MM-dd');
   String? query;
   TextEditingController? _textController;
 
@@ -180,32 +179,9 @@ class CupertinoHomeState extends State<CupertinoHome> {
   }
 
   Widget _buildRow(Ascent ascent) {
-    return Card(
-      child: CupertinoListTile(
-        title: Text(
-          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        subtitle: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
-                  textAlign: TextAlign.left,
-                ),
-              ],
-            ),
-            Container(
-              child: Text(
-                ascent.comment!,
-              ),
-              alignment: Alignment.topLeft,
-            ),
-          ],
-        ),
-        trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
-      ),
+    return AscentCard(
+      ascent: ascent,
+      trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
     );
   }
 

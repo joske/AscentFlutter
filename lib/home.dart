@@ -3,9 +3,9 @@ import 'package:ascent/pyramid.dart';
 import 'package:ascent/statistics.dart';
 import 'package:ascent/top10.dart';
 import 'package:ascent/util.dart';
+import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart' as sb;
-import 'package:intl/intl.dart';
 
 import 'add_ascent_screen.dart';
 import 'model/ascent.dart';
@@ -25,7 +25,6 @@ class MaterialHome extends StatefulWidget {
 class MaterialHomeState extends State<MaterialHome> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late sb.SearchBar searchBar;
-  DateFormat formatter = DateFormat('yyyy-MM-dd');
   String? query;
 
   MaterialHomeState() {
@@ -190,33 +189,9 @@ class MaterialHomeState extends State<MaterialHome> {
   }
 
   Widget _buildRow(Ascent ascent) {
-    return Card(
-      child: ListTile(
-        title: Text(
-          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        subtitle: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
-                  textAlign: TextAlign.left,
-                ),
-              ],
-            ),
-            Container(
-              child: Text(
-                ascent.comment!,
-              ),
-              alignment: Alignment.topLeft,
-            ),
-          ],
-        ),
-        trailing:
-            createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
-      ),
+    return AscentCard(
+      ascent: ascent,
+      trailing: createPopup(ascent, ['edit', 'delete'], [editAscent, deleteAscent]),
     );
   }
 
