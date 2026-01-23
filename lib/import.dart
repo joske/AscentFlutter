@@ -18,7 +18,7 @@ class CsvImporter {
   }
 
   List<Ascent> parse(String contents) {
-    LineSplitter splitter = new LineSplitter();
+    LineSplitter splitter = LineSplitter();
     var lines = splitter.convert(contents);
     List<Ascent> ascents = lines.map((line) => Ascent.fromString(line)).toList();
     return ascents;
@@ -30,7 +30,6 @@ class CsvImporter {
 
       if (directory != null) {
         File file = File(directory + "/ascent-export.csv");
-        print("exporting to $file");
         StringBuffer buf = StringBuffer();
         for (Ascent a in ascents) {
           buf.write(a.encode());
@@ -39,8 +38,7 @@ class CsvImporter {
       } else {
         throw Exception("No directory selected for export.");
       }
-    } catch (e, st) {
-      print("❌ Export failed: $e\n$st");
+    } catch (e) {
       rethrow;
     }
   }

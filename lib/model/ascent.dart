@@ -15,7 +15,7 @@ class Ascent {
   String? comment;
   int? eightAId;
 
-  DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   Ascent({this.route, this.attempts, this.date, this.score, this.stars, this.comment, this.style});
 
@@ -36,7 +36,7 @@ class Ascent {
         score = res["style_id"] != 5 && res["style_id"] != 7 ? res["score"] : 0;
 
   Map<String, dynamic> toMap() {
-    var map = new Map<String, dynamic>();
+    var map = <String, dynamic>{};
     if (id != null && id! > 0) {
       map["_id"] = id;
     }
@@ -66,13 +66,13 @@ class Ascent {
       comment = strings[8];
       stars = int.parse(strings[9]);
 
-      Crag crag = new Crag(name: cragName, country: cragCountry);
-      this.route = new Route(name: routeName, grade: routeGrade, crag: crag, sector: sector);
+      Crag crag = Crag(name: cragName, country: cragCountry);
+      this.route = Route(name: routeName, grade: routeGrade, crag: crag, sector: sector);
     }
   }
 
   String encode() {
-    StringBuffer line = new StringBuffer();
+    StringBuffer line = StringBuffer();
     line.write(route!.name);
     line.write("\t");
     line.write(route!.grade);

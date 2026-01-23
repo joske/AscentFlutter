@@ -39,7 +39,7 @@ class _CragScreenState extends State<CragScreen> {
   }
 
   Widget _buildRow(Crag crag) {
-    var text = new Text(
+    var text = Text(
       crag.name!,
       style: Theme.of(context).textTheme.bodyLarge,
     );

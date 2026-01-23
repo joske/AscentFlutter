@@ -68,7 +68,7 @@ showProgressDialog(BuildContext context, String title) {
           );
         });
   } catch (e) {
-    print(e.toString());
+    // Dialog display failed
   }
 }
 
@@ -109,7 +109,7 @@ showMaterialDialog(BuildContext context, String? title, Widget content, List<Wid
     showDialog(
         context: context,
         builder: (_) {
-          return new AlertDialog(
+          return AlertDialog(
             title: title != null ? Text(title) : null,
             content: SizedBox(
               child: content,

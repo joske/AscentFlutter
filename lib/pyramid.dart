@@ -1,5 +1,4 @@
 import 'package:ascent/model/gradeinfo.dart';
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 
@@ -66,31 +65,31 @@ class PyramidPainter extends CustomPainter {
       int tpSize = gradeInfo.tpCount;
       int tpWidth = tpSize * scale.toInt();
       TextPainter painter =
-          new TextPainter(text: new TextSpan(text: grade, style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+          TextPainter(text: TextSpan(text: grade, style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       rectHeight = painter.height;
       painter.paint(canvas, Offset(5, count * rectHeight));
       painter =
-          new TextPainter(text: new TextSpan(text: osSize.toString(), style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+          TextPainter(text: TextSpan(text: osSize.toString(), style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       painter.paint(canvas, Offset(30, count * rectHeight));
       painter =
-          new TextPainter(text: new TextSpan(text: flSize.toString(), style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+          TextPainter(text: TextSpan(text: flSize.toString(), style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       painter.paint(canvas, Offset(60, count * rectHeight));
       painter =
-          new TextPainter(text: new TextSpan(text: rpSize.toString(), style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+          TextPainter(text: TextSpan(text: rpSize.toString(), style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       painter.paint(canvas, Offset(90, count * rectHeight));
       painter =
-          new TextPainter(text: new TextSpan(text: tpSize.toString(), style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+          TextPainter(text: TextSpan(text: tpSize.toString(), style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       painter.paint(canvas, Offset(120, count * rectHeight));
-      painter = new TextPainter(
-          text: new TextSpan(text: totalSize.toString(), style: new TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
+      painter = TextPainter(
+          text: TextSpan(text: totalSize.toString(), style: TextStyle(color: Colors.white)), textDirection: TextDirection.ltr);
       painter.layout();
       painter.paint(canvas, Offset(150, count * rectHeight));
-      canvas.drawRect(Rect.fromLTRB(center - (totalWidth / 2), count * rectHeight, center + (totalWidth / 2), (count + 1) * rectHeight), new Paint());
+      canvas.drawRect(Rect.fromLTRB(center - (totalWidth / 2), count * rectHeight, center + (totalWidth / 2), (count + 1) * rectHeight), Paint());
       //OS
       canvas.drawRect(Rect.fromLTRB(center - (osWidth / 2), count * rectHeight, center + (osWidth / 2), (count + 1) * rectHeight), osPaint);
       //FL

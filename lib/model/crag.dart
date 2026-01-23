@@ -11,7 +11,7 @@ class Crag {
         country = res["country"];
 
   Map<String, dynamic> toMap() {
-    var map = new Map<String, dynamic>();
+    var map = <String, dynamic>{};
     map["name"] = name;
     map["country"] = country;
     return map;
