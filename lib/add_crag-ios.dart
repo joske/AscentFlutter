@@ -13,8 +13,8 @@ class CupertinoAddCragScreen extends StatelessWidget {
     }
   }
 
-  final TextEditingController nameController = new TextEditingController();
-  final TextEditingController countryController = new TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -67,12 +67,28 @@ class CupertinoAddCragScreen extends StatelessWidget {
               ),
               CupertinoButton(
                 onPressed: () {
+                  if (nameController.text.trim().isEmpty) {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (context) => CupertinoAlertDialog(
+                        title: Text('Validation Error'),
+                        content: Text('Please enter a crag name'),
+                        actions: [
+                          CupertinoDialogAction(
+                            child: Text('OK'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
                   if (passedCrag != null) {
                     passedCrag!.name = nameController.text;
                     passedCrag!.country = countryController.text;
                     DatabaseHelper.updateCrag(passedCrag!);
                   } else {
-                    Crag crag = new Crag(name: nameController.text, country: countryController.text);
+                    Crag crag = Crag(name: nameController.text, country: countryController.text);
                     DatabaseHelper.addCrag(crag);
                   }
                   Navigator.of(context).pop(false);

@@ -13,8 +13,8 @@ class AddCragScreen extends StatelessWidget {
     }
   }
 
-  final TextEditingController nameController = new TextEditingController();
-  final TextEditingController countryController = new TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +73,18 @@ class AddCragScreen extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    if (nameController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please enter a crag name')),
+                      );
+                      return;
+                    }
                     if (passedCrag != null) {
                       passedCrag!.name = nameController.text;
                       passedCrag!.country = countryController.text;
                       DatabaseHelper.updateCrag(passedCrag!);
                     } else {
-                      Crag crag = new Crag(name: nameController.text, country: countryController.text);
+                      Crag crag = Crag(name: nameController.text, country: countryController.text);
                       DatabaseHelper.addCrag(crag);
                     }
                     Navigator.pop(context);
