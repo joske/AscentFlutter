@@ -19,17 +19,17 @@ class MaterialHome extends StatefulWidget {
   final String? title;
 
   @override
-  MaterialHomeState createState() => new MaterialHomeState();
+  MaterialHomeState createState() => MaterialHomeState();
 }
 
 class MaterialHomeState extends State<MaterialHome> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late sb.SearchBar searchBar;
-  DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  DateFormat formatter = DateFormat('yyyy-MM-dd');
   String? query;
 
   MaterialHomeState() {
-    searchBar = new sb.SearchBar(
+    searchBar = sb.SearchBar(
         inBar: false,
         setState: setState,
         clearOnSubmit: false,
@@ -89,7 +89,7 @@ class MaterialHomeState extends State<MaterialHome> {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
                 }
-                final data = snapshot.data as List<Ascent>;
+                final data = snapshot.data ?? [];
                 var len = data.length;
                 return ListTile(
                     leading: Column(
@@ -249,7 +249,6 @@ class MaterialHomeState extends State<MaterialHome> {
         ));
       }
     } catch (e) {
-      print("failed to import $e");
       Navigator.pop(context);
       showAlertDialog(context, "Error", "Failed to Import data");
       return;
@@ -266,7 +265,6 @@ class MaterialHomeState extends State<MaterialHome> {
         content: Text("Exported ${ascents.length} ascents"),
       ));
     } catch (e) {
-      print("failed to export $e");
       Navigator.pop(context);
       showAlertDialog(context, "Error", "Failed to export data");
       return;

@@ -18,11 +18,11 @@ class CupertinoHome extends StatefulWidget {
   final String? title;
 
   @override
-  CupertinoHomeState createState() => new CupertinoHomeState();
+  CupertinoHomeState createState() => CupertinoHomeState();
 }
 
 class CupertinoHomeState extends State<CupertinoHome> {
-  DateFormat formatter = new DateFormat('yyyy-MM-dd');
+  DateFormat formatter = DateFormat('yyyy-MM-dd');
   String? query;
   TextEditingController? _textController;
 
@@ -151,7 +151,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               }
-              final data = snapshot.data as List<Ascent>;
+              final data = snapshot.data ?? [];
               int len = data.length;
               return CupertinoListTile(
                   title: Text(

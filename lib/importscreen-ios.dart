@@ -55,9 +55,9 @@ class ImportScreen extends StatelessWidget {
         ));
       }
     } catch (e) {
-      print("failed to import $e");
       Navigator.of(context, rootNavigator: true).pop();
-      showAlertDialog(context, "Error", "Failed to Import data");
+      showAlertDialog(context, "Error", "Failed to import data");
+      return;
     }
     Navigator.of(context, rootNavigator: true).pop();
   }
@@ -66,14 +66,14 @@ class ImportScreen extends StatelessWidget {
     showProgressDialog(context, "Exporting");
     try {
       var ascents = await DatabaseHelper.getAscents(null);
-      CsvImporter().writeFile(ascents);
+      await CsvImporter().writeFile(ascents);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Exported ${ascents.length} ascents"),
       ));
     } catch (e) {
-      print("failed to import $e");
       Navigator.of(context, rootNavigator: true).pop();
-      showAlertDialog(context, "Error", "Failed to Import data");
+      showAlertDialog(context, "Error", "Failed to export data");
+      return;
     }
     Navigator.of(context, rootNavigator: true).pop();
   }
