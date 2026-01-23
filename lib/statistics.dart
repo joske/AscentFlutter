@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:ascent/widgets/ascent_card.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'model/ascent.dart';
 import 'database.dart';
+import 'util.dart';
 
 class StatisticsScreen extends StatefulWidget {
   @override
@@ -15,7 +16,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   String? year = "All";
   int? cragId = 0;
   int numAscents = 0;
-  DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +82,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ))
       ]),
       Row(children: [
-        Text("Showing $numAscents Ascents"),
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Text("Showing $numAscents Ascents"),
+        ),
       ]),
       Flexible(
         child: buildRows(context),
@@ -106,38 +109,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     padding: const EdgeInsets.all(10.0),
                     itemCount: snapshot.data?.length,
                     itemBuilder: (context, i) {
-                      return buildRow(snapshot.data![i]);
+                      return _buildRow(snapshot.data![i]);
                     })));
       },
     );
   }
 
-  Widget buildRow(Ascent ascent) {
-    return Card(
-      child: ListTile(
-        title: Text(
-          "${formatter.format(ascent.date!)}    ${ascent.route!.grade}    ${ascent.style!.name}    ${ascent.route!.name}    ${ascent.score}",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        subtitle: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "${ascent.route!.crag!.name}    ${ascent.route!.sector}    stars: ${ascent.stars}",
-                  textAlign: TextAlign.left,
-                ),
-              ],
-            ),
-            Container(
-              child: Text(
-                ascent.comment!,
-              ),
-              alignment: Alignment.topLeft,
-            ),
-          ],
-        ),
-      ),
+  Widget _buildRow(Ascent ascent) {
+    return AscentCard(
+      ascent: ascent,
+      trailing: createPopup(ascent, ['view'], [(a) {}]),
     );
   }
 
