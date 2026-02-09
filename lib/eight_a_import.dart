@@ -45,66 +45,11 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
           },
         ),
       )
-      ..addJavaScriptChannel(
-        'FlutterChannel',
-        onMessageReceived: _onJavaScriptMessage,
-      )
       ..loadRequest(Uri.parse('https://www.8a.nu/'));
   }
 
   List<Ascent> _fetchedAscents = [];
   bool _stopFetching = false;
-
-  void _onJavaScriptMessage(JavaScriptMessage message) async {
-    try {
-      final data = jsonDecode(message.message);
-      if (data['type'] == 'page') {
-        final ascentsJson = data['data']['ascents'] as List;
-        final pageAscents = ascentsJson.map((item) => Ascent.fromJson(item)).toList();
-
-        // Check if we should stop (all ascents on this page already exist)
-        int existingCount = 0;
-        for (final ascent in pageAscents) {
-          bool exists = false;
-          if (ascent.eightAId != null) {
-            exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!);
-          }
-          if (!exists && ascent.route?.name != null && ascent.date != null && ascent.route?.grade != null) {
-            final dateStr = ascent.date!.toIso8601String().substring(0, 10);
-            exists = await DatabaseHelper.ascentExists(ascent.route!.name!, dateStr, ascent.route!.grade!);
-          }
-          if (exists) existingCount++;
-        }
-
-        _fetchedAscents.addAll(pageAscents);
-
-        // Stop if all ascents on this page exist (we've caught up)
-        if (pageAscents.isNotEmpty && existingCount == pageAscents.length) {
-          _stopFetching = true;
-        }
-
-        // Tell JS whether to continue
-        await _controller.runJavaScript('window.continueSync = ${!_stopFetching};');
-
-      } else if (data['type'] == 'done') {
-        setState(() {
-          _ascents = _fetchedAscents;
-          _isLoading = false;
-          _showWebView = false;
-        });
-      } else if (data['type'] == 'error') {
-        setState(() {
-          _error = data['message'] ?? 'Failed to fetch ascents';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to parse response: $e';
-        _isLoading = false;
-      });
-    }
-  }
 
   void _extractUserSlug(String url) {
     final slugMatch = RegExp(r'/user/([^/]+)').firstMatch(url);
@@ -113,6 +58,7 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       if (slug != null && slug != 'login' && slug != _userSlug) {
         setState(() {
           _userSlug = slug;
+          if (_isLoggedIn) _showWebView = false;
         });
       }
     }
@@ -129,6 +75,7 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     if (loggedIn != _isLoggedIn) {
       setState(() {
         _isLoggedIn = loggedIn;
+        if (loggedIn && _userSlug != null) _showWebView = false;
       });
     }
 
@@ -169,7 +116,7 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
       window.flutterFetchDone = false;
       (async function() {
         try {
-          const url = 'https://www.8a.nu/api/unification/ascent/v1/web/users/$_userSlug/ascents?category=sportclimbing&pageIndex=$pageIndex&pageSize=50&sortField=date_desc&timeFilter=0&gradeFilter=0&includeProjects=true&showRepeats=true&showDuplicates=false';
+          const url = 'https://www.8a.nu/api/unification/ascent/v1/web/users/$_userSlug/ascents?category=sportclimbing&pageIndex=$pageIndex&pageSize=50&sortField=date_desc&timeFilter=0&includeProjects=true&showRepeats=true&showDuplicates=false';
           const response = await fetch(url);
           if (!response.ok) {
             window.flutterFetchResult = JSON.stringify({error: 'HTTP ' + response.status});
@@ -261,7 +208,7 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
         for (final ascent in pageAscents) {
           bool exists = false;
           if (ascent.eightAId != null) {
-            exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!);
+            exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!, ascent.date!.toIso8601String().substring(0, 10));
           }
           if (!exists && ascent.route?.name != null && ascent.date != null && ascent.route?.grade != null) {
             final dateStr = ascent.date!.toIso8601String().substring(0, 10);
@@ -304,29 +251,8 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
     });
 
     for (final ascent in _ascents!) {
-      // Check by eightAId first, then by route name + date + grade
-      bool exists = false;
-      if (ascent.eightAId != null) {
-        exists = await DatabaseHelper.ascentExistsByEightAId(ascent.eightAId!);
-      }
-      if (!exists && ascent.route?.name != null && ascent.date != null && ascent.route?.grade != null) {
-        final dateStr = ascent.date!.toIso8601String().substring(0, 10);
-        exists = await DatabaseHelper.ascentExists(ascent.route!.name!, dateStr, ascent.route!.grade!);
-        // Update eightAId if entry exists but doesn't have one
-        if (exists && ascent.eightAId != null) {
-          final updated = await DatabaseHelper.updateEightAIdIfMissing(
-            ascent.route!.name!, dateStr, ascent.route!.grade!, ascent.eightAId!
-          );
-          if (updated) _updatedCount++;
-        }
-      }
-
-      if (exists) {
-        _skippedCount++;
-      } else {
-        await DatabaseHelper.createAscent(ascent);
-        _importedCount++;
-      }
+      await DatabaseHelper.createAscent(ascent);
+      _importedCount++;
       setState(() {});
     }
 
@@ -434,6 +360,32 @@ class _EightAImportScreenState extends State<EightAImportScreen> {
 
     if (_ascents != null && !_showWebView) {
       return _buildAscentsPreview();
+    }
+
+    if (!_showWebView && _userSlug != null && _isLoggedIn) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud_download, size: 64, color: Colors.blue[400]),
+              const SizedBox(height: 24),
+              Text('Ready to sync as $_userSlug',
+                style: const TextStyle(fontSize: 18)),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _onFetchPressed,
+                  child: const Text('Sync Ascents', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Column(

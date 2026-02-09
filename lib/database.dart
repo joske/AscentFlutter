@@ -376,12 +376,12 @@ class DatabaseHelper {
     await _db!.rawDelete("delete from ascents");
   }
 
-  static Future<bool> ascentExistsByEightAId(int eightAId) async {
+  static Future<bool> ascentExistsByEightAId(int eightAId, String date) async {
     await init();
     final result = await _db!.query(
       'ascents',
-      where: 'eighta_id = ?',
-      whereArgs: [eightAId.toString()],
+      where: 'eighta_id = ? AND date LIKE ?',
+      whereArgs: [eightAId.toString(), '$date%'],
     );
     return result.isNotEmpty;
   }
@@ -477,8 +477,12 @@ class DatabaseHelper {
     await db.execute(
       "create table grades (grade text primary key, score number)",
     );
-    await db.execute("insert into grades values ('3', 150);");
-    await db.execute("insert into grades values ('4', 200);");
+    await db.execute("insert into grades values ('3a', 150);");
+    await db.execute("insert into grades values ('3b', 160);");
+    await db.execute("insert into grades values ('3c', 170);");
+    await db.execute("insert into grades values ('4a', 200);");
+    await db.execute("insert into grades values ('4b', 215);");
+    await db.execute("insert into grades values ('4c', 230);");
     await db.execute("insert into grades values ('5a', 250);");
     await db.execute("insert into grades values ('5b', 300);");
     await db.execute("insert into grades values ('5c', 350);");
