@@ -72,7 +72,7 @@ class ImportScreen extends StatelessWidget {
           await DatabaseHelper.addAscent(a);
         }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Exported ${ascents.length} ascents"),
+          content: Text("Imported ${ascents.length} ascents"),
         ));
       }
     } catch (e) {
@@ -87,15 +87,16 @@ class ImportScreen extends StatelessWidget {
     showProgressDialog(context, "Exporting");
     try {
       var ascents = await DatabaseHelper.getAscents(null);
-      await CsvImporter().writeFile(ascents);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Exported ${ascents.length} ascents"),
-      ));
+      bool saved = await CsvImporter().saveFile(ascents);
+      Navigator.of(context, rootNavigator: true).pop();
+      if (saved) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Exported ${ascents.length} ascents"),
+        ));
+      }
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
       showAlertDialog(context, "Error", "Failed to export data");
-      return;
     }
-    Navigator.of(context, rootNavigator: true).pop();
   }
 }

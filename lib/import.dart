@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'model/ascent.dart';
@@ -24,23 +25,20 @@ class CsvImporter {
     return ascents;
   }
 
-  Future<void> writeFile(List<Ascent> ascents) async {
-    try {
-      String? directory = await FilePicker.platform.getDirectoryPath();
-
-      if (directory != null) {
-        File file = File(directory + "/ascent-export.csv");
-        StringBuffer buf = StringBuffer();
-        for (Ascent a in ascents) {
-          buf.write(a.encode());
-        }
-        await file.writeAsString(buf.toString());
-      } else {
-        throw Exception("No directory selected for export.");
-      }
-    } catch (e) {
-      rethrow;
+  /// Opens a save dialog and writes the ascents as CSV.
+  /// Returns true if saved, false if cancelled.
+  Future<bool> saveFile(List<Ascent> ascents) async {
+    StringBuffer buf = StringBuffer();
+    for (Ascent a in ascents) {
+      buf.write(a.encode());
     }
+    var bytes = utf8.encode(buf.toString());
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Export ascents',
+      fileName: 'ascent-export.csv',
+      bytes: Uint8List.fromList(bytes),
+    );
+    return path != null;
   }
 
   List<Ascent> parseEightAJson(String data) {

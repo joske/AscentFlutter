@@ -199,7 +199,7 @@ class CupertinoHomeState extends State<CupertinoHome> {
     showProgressDialog(context, "Exporting");
     try {
       var ascents = await DatabaseHelper.getAscents(null);
-      await CsvImporter().writeFile(ascents);
+      await CsvImporter().saveFile(ascents);
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
       showAlertDialog(context, "Error", "Failed to export data");

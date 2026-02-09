@@ -301,16 +301,17 @@ class MaterialHomeState extends State<MaterialHome> {
     showProgressDialog(context, "Exporting");
     try {
       var ascents = await DatabaseHelper.getAscents(null);
-      await CsvImporter().writeFile(ascents);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Exported ${ascents.length} ascents"),
-      ));
+      bool saved = await CsvImporter().saveFile(ascents);
+      Navigator.pop(context);
+      if (saved) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Exported ${ascents.length} ascents"),
+        ));
+      }
     } catch (e) {
       Navigator.pop(context);
-      showAlertDialog(context, "Error", "Failed to export data");
-      return;
+      showAlertDialog(context, "Error", "Failed to export data: $e");
     }
-    Navigator.pop(context);
   }
 
   overview() async {
